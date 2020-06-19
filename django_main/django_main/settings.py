@@ -29,6 +29,7 @@ config.read(config_paths)
 DOMAIN = config.get('global', 'domain')
 
 ALLOWED_HOSTS = [
+    '62.113.113.175',
     '127.0.0.1',
     'localhost',
     '0.0.0.0',
