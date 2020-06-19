@@ -5,7 +5,7 @@
       <section class="text-center">
         <div class="container">
           <h1 class="py-3">Разбивка {{criteria.name}} по {{criteria.slicename}}</h1>
-          <p class="lead text-muted">{{criteria.description}</p>
+          <p class="lead text-muted">{{criteria.description}}</p>
           <p>
             {% for slice in criteria.slices %}
                 <a href="{% url 'slice' slice.id %}" class="btn {% if slice.id = criteria.sliceid %} btn-primary {% endif %} my-2">{{ slice.name }}</a>
