@@ -4,36 +4,17 @@
 {% block main %}
       <section class="text-center">
         <div class="container">
-          <h1 class="py-3">Разбивка {{criteria.name}} по {{criteria.slicename}}</h1>
-          <p class="lead text-muted">{{criteria.description}</p>
-          <p>
-            {% for slice in criteria.slices %}
-                <a href="{% url 'slice' slice.id %}" class="btn {% if slice.id = criteria.sliceid %} btn-primary {% endif %} my-2">{{ slice.name }}</a>
-            {% endfor %}
-          </p>
+          <h1 class="py-3">Список программ</h1>
+          <p class="lead text-muted">Выберете программу из списка для просмотра критериев</p>
         </div>
       </section>
 
       <div class="album">
-        <div class="container">
-          <div class="row">
-            {% for chart in criteria.charts %}
-            <div class="col-6">
-              <div class="card box-shadow">
-                <canvas id="myChart{{chart.id}}"></canvas>
-              </div>
-            </div>
-            <script>
-            var ctx = document.getElementById('myChart{{chart.id}}').getContext('2d');
-            var myChart = new Chart(ctx, {
-                type: 'line',
-                data: {{ chart.data }}
-            });
-            </script>
-            {% endfor %}
-          </div>
-        </div>
+        <ul class="container">
+          {% for programm in programms %}
+            <li><a href={% url 'programm' programm.id %}> {{ programm.name }} </a></li>
+          {% endfor %}
+        </ul>
       </div>
 
-    
 {% endblock %}
