@@ -10,5 +10,7 @@ DATABASE_ENGINE: django.db.backends.postgresql_psycopg2
 DATABASE_NAME: django_main
 DATABASE_USER: postgres
 DATABASE_PASSWORD: Iamgenius
-DATABASE_HOST: django_main_db
-DATABASE_PORT: 5432
+DATABASE_HOST_DOCKER: django_main_db
+DATABASE_HOST: localhost
+DATABASE_PORT_DOCKER: 5432
+DATABASE_PORT: 54320
