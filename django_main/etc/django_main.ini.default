@@ -1,0 +1,14 @@
+[global]
+SECRET_KEY: ******
+DEBUG: True
+
+DOMAIN: django_main
+
+[database_primary]
+
+DATABASE_ENGINE: django.db.backends.postgresql_psycopg2
+DATABASE_NAME: django_main
+DATABASE_USER: postgres
+DATABASE_PASSWORD: Iamgenius
+DATABASE_HOST: django_main_db
+DATABASE_PORT: 5432
