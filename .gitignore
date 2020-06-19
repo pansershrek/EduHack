@@ -61,3 +61,5 @@ booking_api.egg-info/
 
 # Emacs
 *~
+
+pgdata

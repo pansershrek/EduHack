@@ -29,6 +29,7 @@ config.read(config_paths)
 DOMAIN = config.get('global', 'domain')
 
 ALLOWED_HOSTS = [
+    '62.113.113.175',
     '127.0.0.1',
     'localhost',
     '0.0.0.0',
@@ -47,8 +48,6 @@ SECRET_KEY = '=5a1gc7)o9@c^9zf(@g_(1(g8pae-1*4impxsg9li_nmeyspx9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -60,7 +59,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'watchman',
-    'chartjs'
+    'chartjs',
+    'display_charts',
 ]
 
 MIDDLEWARE = [
@@ -212,3 +212,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
+
+STATIC_ROOT = 'static/'
+
+
+# STATICFILES_DIRS = (
+#    os.path.join(BASE_DIR, 'static'),
+#)
