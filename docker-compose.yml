@@ -13,7 +13,7 @@ services:
     networks:
       - net
     volumes:
-      - ./pgdata/pgdata:/var/lib/postgresql/data_docker/pgdata_docker
+      - ../pgdata/pgdata:/var/lib/postgresql/data_docker/pgdata_docker
   django_main:
     build: django_main
     image: django_main
