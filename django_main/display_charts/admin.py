@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import EduProgram, ProgramCriteria
+from .models import EduProgram, ProgramCriteria, ParamsWeight
 
 # Register your models here.
 
@@ -11,4 +11,9 @@ class EduProgramAdmin(admin.ModelAdmin):
 
 @admin.register(ProgramCriteria)
 class ProgramCriteriaAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ParamsWeight)
+class ParamsWeightAdmin(admin.ModelAdmin):
     pass
