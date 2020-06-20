@@ -9,6 +9,18 @@
         </div>
       </section>
 
+      <section class="text-left">
+        <div class="container">
+          <h3><a href="{% url 'upload_data_teachers' %}"> Загрузить данные преподавателей для программы </a></h1>
+        </div>
+        <div class="container">
+          <h3><a href="{% url 'upload_data_students' %}"> Загрузить данные студентов для программы </a></h1>
+        </div>
+        <div class="container">
+          <h3><a href="{% url 'upload_data_university' %}"> Загрузить данные университета для программы </a></h1>
+        </div>
+      </section>
+
       <div class="album">
         <ul class="container">
           {% for programm in programms %}

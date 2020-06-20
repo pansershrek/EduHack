@@ -28,6 +28,40 @@ def parse_university_data(excel_file, program_id):
             load2db(col, arr[i], temp_date, program_id)
 
 
+def parse_student_data(excel_data, program_id):
+    try:
+        program_id = EduProgram.objects.get(id=program_id)
+    except:
+        return
+    data = pd.read_excel(excel_data)
+    year_arr = data.get("date").array
+    id_stud = data.get("id_student").array
+    cnt_subj = data.get("cnt_subjects").array.fillna(0)
+    n = len(data.columns)
+    i = 1
+    cnt_stud = len(set(id_stud))
+    for i in range(len(year_arr)):
+        temp_date = year_arr[i].date()
+        sum = 0
+        for col in data.columns[3:]:
+            sum += data.get(col).array.fillna(0)[i]
+        sum /= (n - 3)
+        load2db("avg_stud_score_per_year.avg_semester_student." +
+                str(id_stud[i]), sum, temp_date, program_id)
+
+    print(data.groupby(['date']).sum())
+
+    new_data = data.groupby(['date']).sum()
+
+    year_arr_2 = list(set(year_arr))
+    for i in range(len(year_arr_2)):
+        temp_date = year_arr[i].date()
+        cnt = new_data.get("cnt_subjects")[i]
+        for col in new_data.columns[2:]:
+            load2db("avg_stud_score_per_year.avg_semester_subject." +
+                    col[-1:], new_data.get(col)[i] / cnt, temp_date, program_id)
+
+
 def parse_teachers_data(excel_file, program_id):
     try:
         program_id = EduProgram.objects.get(id=program_id)
