@@ -8,11 +8,13 @@ from .models import EduProgram, ProgramCriteria
 from chartjs.colors import COLORS, next_color
 import random
 from collections import defaultdict
-from .utils.parser_xlsd import parse_teachers_data, parse_university_data
+from .utils.parser_xlsd import parse_teachers_data, parse_university_data, parse_student_data
 import os
 from django.shortcuts import redirect
 from .forms import UploadForm
 import io
+
+import logging
 
 
 def test_touch(request, id):
@@ -261,9 +263,9 @@ def upload_data_students(request):
             form = UploadForm(request.POST, request.FILES)
             if form.is_valid():
                 data = io.BytesIO(request.FILES['file'].read())
-                parse_teachers_data(data, request.POST['name'])
-        except:
-            pass
+                parse_student_data(data, request.POST['name'])
+        except BaseException as e:
+            logging.error(e)
     else:
         form = UploadForm
         return render(request, "upload_data_students.html", {"form": form})
@@ -277,8 +279,8 @@ def upload_data_teachers(request):
             if form.is_valid():
                 data = io.BytesIO(request.FILES['file'].read())
                 parse_teachers_data(data, request.POST['name'])
-        except:
-            pass
+        except BaseException as e:
+            logging.error(e)
     else:
         form = UploadForm
         return render(request, "upload_data_teachers.html", {"form": form})
@@ -291,9 +293,9 @@ def upload_data_university(request):
             form = UploadForm(request.POST, request.FILES)
             if form.is_valid():
                 data = io.BytesIO(request.FILES['file'].read())
-                parse_teachers_data(data, request.POST['name'])
-        except:
-            pass
+                parse_university_data(data, request.POST['name'])
+        except BaseException as e:
+            logging.error(e)
     else:
         form = UploadForm
         return render(request, "upload_data_university.html", {"form": form})

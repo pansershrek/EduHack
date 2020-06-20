@@ -49,8 +49,6 @@ def parse_student_data(excel_data, program_id):
         load2db("avg_stud_score_per_year.avg_semester_student." +
                 str(id_stud[i]), sum, temp_date, program_id)
 
-    print(data.groupby(['date']).sum())
-
     new_data = data.groupby(['date']).sum()
 
     year_arr_2 = list(set(year_arr))
