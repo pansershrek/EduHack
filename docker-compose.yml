@@ -17,7 +17,7 @@ services:
   django_main:
     build: django_main
     image: django_main
-    command: ["bash", "-c", "sleep 15; python manage.py migrate --noinput; python manage.py runserver 0.0.0.0:8000 "]
+    command: ["bash", "-c", "sleep 15; python manage.py migrate --noinput; sleep 10; python -c django_main/create_superuser.py; sleep 10;  python manage.py runserver 0.0.0.0:8000;"]
     volumes:
       - .:/django_main
     ports:
