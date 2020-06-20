@@ -9,6 +9,8 @@ from chartjs.colors import COLORS, next_color
 import random
 from collections import defaultdict
 from .utils.parser_xlsd import parse_teachers_data, parse_university_data
+import os
+from django.shortcuts import redirect
 
 
 def test_touch(request, id):
@@ -56,7 +58,7 @@ def get_charts_for_slices(request, id=1, slice_type=""):
         timestamps.sort()
         data_by_date = {x: 0 for x in timestamps}
         label2id = {
-            x: ProgramCriteria.objects.filter(label=main_criteria+"."+slice_type+"."+x)[0].id for x in charts
+            x: ProgramCriteria.objects.filter(label=main_criteria + "." + slice_type + "." + x)[0].id for x in charts
         }
         return render(
         request, "chart_slices.html",
@@ -85,7 +87,6 @@ def get_charts_for_slices(request, id=1, slice_type=""):
                     for x in charts
                 ]
             }
-
         }
     )
 
@@ -101,7 +102,8 @@ def get_charts(request, id=1):
         if is_slice(criteria.label):
             criteria_has_slices.add(criteria.label.split('.')[0])
 
-    program_criterias = list(filter(lambda x: not is_slice(x.label), program_criterias))
+    program_criterias = list(
+        filter(lambda x: not is_slice(x.label), program_criterias))
     timestamps = list(set([
         datetime2str(x.timestamp) for x in program_criterias
     ]))
@@ -171,22 +173,27 @@ def create_program(request):
         raise Http404("Программа с таким именем уже существует")
     except:
         pass
-    program = EduProgram(name=request.POST['ProgramName'], description=request.POST['ProgramDescription'])
+    program = EduProgram(name=request.POST['ProgramName'], description=request.POST[
+                         'ProgramDescription'])
     program.save()
     return HttpResponseRedirect(reverse('program', args=(program.id, )))
 
 
-def kek(request):
-    ex_file = "display_charts/utils/testXsld/Univer_Info_Data.xlsx"
-    obj = open(ex_file, 'rb')
-    parse_university_data(obj, 1)
+def upload_data(request, id_prog, file_path):
+    #ex_file = "display_charts/utils/testXsld/Univer_Info_Data.xlsx"
+    file_path = os.path.join("display_charts/utils/testXsld/", file_path)
+    obj = open(file_path, 'rb')
+    parse_university_data(obj, id_prog)
+    return redirect("/")
 
 
 urlpatterns = [
     path("program/<int:id>", get_charts, name="program"),
     path("chartSlices/<int:id>", get_charts_for_slices, name="chartSlices"),
-    path("chartSlices/<int:id>/<str:slice_type>", get_charts_for_slices, name="chartSlicesSpec"),
+    path("chartSlices/<int:id>/<str:slice_type>",
+         get_charts_for_slices, name="chartSlicesSpec"),
     path("create_program", create_program, name="create_program"),
     path("", get_programms_list, name="programms_list"),
-    path("kek", kek, name="kek"),
+    path("upload_data/<int:id_prog>/<str:file_path>",
+         upload_data, name="upload_data"),
 ]
