@@ -9,6 +9,7 @@ from chartjs.colors import COLORS, next_color
 import random
 from collections import defaultdict
 from .utils.parser_xlsd import parse_teachers_data, parse_university_data
+import os
 
 
 def test_touch(request, id):
@@ -178,6 +179,7 @@ def create_program(request):
 
 def upload_data(request, id_prog, file_path):
     #ex_file = "display_charts/utils/testXsld/Univer_Info_Data.xlsx"
+    file_path = os.path.join("display_charts/utils/testXsld/", file_path)
     obj = open(file_path, 'rb')
     parse_university_data(obj, id_prog)
 
