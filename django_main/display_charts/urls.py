@@ -91,8 +91,14 @@ def get_charts(request, id=1):
         }
     )
 
+
+def get_programms_list(request):
+    program = list(EduProgram.objects.all())
+    return render(request, "programms_list.html", {"programms": program})
+
 urlpatterns = [
     path("charts/<int:id>", get_charts, name="charts"),
     path("charts/", get_charts, name="charts"),
-    path("chartSlices/<int:id>", test_touch, name="chartSlices")
+    path("chartSlices/<int:id>", test_touch, name="chartSlices"),
+    path("programms_list", get_programms_list, name="programms_list")
 ]
