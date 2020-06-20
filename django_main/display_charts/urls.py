@@ -195,8 +195,8 @@ def get_charts_for_slices(request, id=1, slice_type=""):
             request, "chart_slices.html",
             {
                 "criteria": {
-                    "name": criteria.label.split('.')[0],
-                    "slicename": slice_type,
+                    "name": label_translate(criteria.label.split('.')[0]),
+                    "slicename": label_translate(slice_type),
                     "slices": list(criteria_types.keys()),
                     "chartId": id,
                     "charts": charts
