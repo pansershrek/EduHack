@@ -11,11 +11,17 @@ from collections import defaultdict
 from .utils.parser_xlsd import parse_teachers_data, parse_university_data, parse_student_data
 import os
 from django.shortcuts import redirect
+from .utils.dict import translate_criteria, criteria2desc
 from .forms import UploadForm
 import io
 
 import logging
 
+def label_translate(label):
+    return translate_criteria[label] if label in translate_criteria else label
+
+def description_translate(label):
+    return criteria2desc[label] if label in criteria2desc else label
 
 def test_touch(request, id):
     return HttpResponse("Ok")
@@ -63,7 +69,7 @@ def compare_charts(request):
                               "labels": timestamps,
                               "datasets": [
                                   {
-                                      "label": graphic[0],
+                                      "label": label_translate(graphic[0]),
                                       "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
                                        'fill': 0,"lineTension":0.1,
                                       "data": convert([(y.value, y.timestamp) for y in graphic[1]], data_by_date.copy()) if graphic[0] != "Agg_data" else
@@ -142,11 +148,12 @@ def get_charts_for_slices(request, id=1, slice_type=""):
                             "chart_label": main_criteria + "." + slice_type + "." + x,
                             "program_id": crit.program.id,
                             "is_in_compare": [main_criteria + "." + slice_type + "." + x, str(crit.program.id)] in request.session['to_compare'],
+                            "description": description_translate(x),
                             "data": {
                                 "labels": timestamps,
                                 "datasets": [
                                     {
-                                        "label": x,
+                                        "label": label_translate(x),
                                         "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
                                          'fill': 0,"lineTension":0.1,
                                         "data": convert([(y.value, y.timestamp) for y in
@@ -188,7 +195,7 @@ def get_charts(request, id=1):
         "labels": timestamps,
         "datasets": [
             {
-                'label': "Agg_data",
+                'label': label_translate("Agg_data"),
                 "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
                 'fill': 0,"lineTension":0.1,
                 "data": [sum([x.value for x in program_criterias if datetime2str(x.timestamp) == y]) for y in
@@ -208,6 +215,7 @@ def get_charts(request, id=1):
                 "name": program.name,
                 "description": program.description,
                 "mainChart": {
+                    "description": description_translate("Agg_data"),
                     "chart_label": "Agg_data",
                     "program_id": program.id,
                     "data": agg_criteries,
@@ -221,11 +229,12 @@ def get_charts(request, id=1):
                         "chart_label": x,
                         "program_id": program.id,
                         "is_in_compare": [x, str(program.id)] in request.session['to_compare'],
+                        "description": description_translate(x),
                         "data": {
                             "labels": timestamps,
                             "datasets": [
                                 {
-                                    "label": x,
+                                    "label": label_translate(x),
                                     "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)},1)",
                                     'fill': 0,"lineTension":0.1,
                                     "data": convert([(y.value, y.timestamp) for y in

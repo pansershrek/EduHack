@@ -9,7 +9,34 @@
         </div>
       </section>
 
-      <section class="text-left">
+      <div class="container justify-content-between">
+          <h2>Программы:</h2>
+        <ul class="container">
+          {% for programm in programms %}
+            <li><a href="{% url 'program' programm.id %}"> {{ programm.name }} </a></li>
+          {% endfor %}
+        </ul>
+      <style>
+          .create-program input, .create-program textarea {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            width: 500px;
+          }
+      </style>
+
+          <h2>Добавить программу</h2>
+      <form action="{% url 'create_program' %}" class="py-3 text-center create-program" method="post">
+        {% csrf_token %}
+        <input type="text" name="ProgramName" placeholder="Название программы">
+        <textarea name="ProgramDescription"  placeholder="Описание программы"></textarea>
+        <input type="submit" value="Создать программу" class="btn-primary">
+      </form>
+
+          <h2>Загрузить данные</h2>
+      <section class="text-left my-3">
         <div class="container">
           <h3><a href="{% url 'upload_data_teachers'  %}"> Загрузить данные преподавателей для программы </a></h1>
         </div>
@@ -21,26 +48,5 @@
         </div>
       </section>
 
-      <div class="album">
-        <ul class="container">
-          {% for programm in programms %}
-            <li><a href="{% url 'program' programm.id %}"> {{ programm.name }} </a></li>
-          {% endfor %}
-        </ul>
       </div>
-      <style>
-          .create-program input, .create-program textarea {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: 5px;
-            margin-bottom: 5px;
-          }
-      </style>
-      <form action="{% url 'create_program' %}" class="py-3 text-center create-program" method="post">
-        {% csrf_token %}
-        <input type="text" name="ProgramName" placeholder="Название программы">
-        <textarea name="ProgramDescription"  placeholder="Описание программы"></textarea>
-        <input type="submit" value="Создать программу" class="btn-primary">
-      </form>
 {% endblock %}
