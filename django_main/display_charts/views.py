@@ -21,5 +21,5 @@ class LineChartJSONView(BaseLineChartView):
                 [87, 21, 94, 3, 90, 13, 65]]
 
 
-line_chart = TemplateView.as_view(template_name='line_chart.html')
+line_chart = TemplateView.as_view(template_name='mem.html')
 line_chart_json = LineChartJSONView.as_view()

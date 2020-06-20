@@ -12,7 +12,7 @@
       <div class="album">
         <ul class="container">
           {% for programm in programms %}
-            <li><a href="{% url 'programm' programm.id %}"> {{ programm.name }} </a></li>
+            <li><a href="{% url 'charts' programm.id %}"> {{ programm.name }} </a></li>
           {% endfor %}
         </ul>
       </div>
