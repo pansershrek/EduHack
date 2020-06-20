@@ -82,7 +82,7 @@ def compare_charts(request):
                               "labels": timestamps,
                               "datasets": [
                                   {
-                                      "label": label_translate(graphic[0]),
+                                      "label": label_translate(graphic[0]) + " из " + graphic[1][0].program.name,
                                       "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
                                       'fill': 0, "lineTension":0.1,
                                       "data": convert([(y.value, y.timestamp) for y in graphic[1]], data_by_date.copy()) if graphic[0] != "Agg_data" else
@@ -283,7 +283,7 @@ def get_charts(request, id=1):
                                 'fill': 0, "lineTension": 0.1,
                                 "data": convert([(y.value, y.timestamp) for y in
                                                  ProgramCriteria.objects.filter(label=x, program=program)],
-                                                data_by_date.copy()) + [-1]
+                                                data_by_date.copy())
                             }
                         ]
                     }
