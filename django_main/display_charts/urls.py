@@ -181,7 +181,7 @@ def create_program(request):
     return HttpResponseRedirect(reverse('program', args=(program.id, )))
 
 
-def upload_data(request):
+def upload_data_students(request):
     if request.method == "POST":
         try:
             form = UploadForm(request.POST, request.FILES)
@@ -192,7 +192,37 @@ def upload_data(request):
             pass
     else:
         form = UploadForm
-        return render(request, "upload_data.html", {"form": form})
+        return render(request, "upload_data_students.html", {"form": form})
+    return redirect("/")
+
+
+def upload_data_teachers(request):
+    if request.method == "POST":
+        try:
+            form = UploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                data = io.BytesIO(request.FILES['file'].read())
+                parse_teachers_data(data, request.POST['name'])
+        except:
+            pass
+    else:
+        form = UploadForm
+        return render(request, "upload_data_teacher.html", {"form": form})
+    return redirect("/")
+
+
+def upload_data_university(request):
+    if request.method == "POST":
+        try:
+            form = UploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                data = io.BytesIO(request.FILES['file'].read())
+                parse_teachers_data(data, request.POST['name'])
+        except:
+            pass
+    else:
+        form = UploadForm
+        return render(request, "upload_data_teacher.html", {"form": form})
     return redirect("/")
 
 
@@ -203,5 +233,10 @@ urlpatterns = [
          get_charts_for_slices, name="chartSlicesSpec"),
     path("create_program", create_program, name="create_program"),
     path("", get_programms_list, name="programms_list"),
-    path("upload_data", upload_data, name="upload_data"),
+    path("upload_data_university", upload_data_university,
+         name="upload_data_university"),
+    path("upload_data_teachers", upload_data_teachers,
+         name="upload_data_teachers"),
+    path("upload_data_students", upload_data_students,
+         name="upload_data_students"),
 ]
