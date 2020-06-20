@@ -1,12 +1,9 @@
+{% extends 'base.html' %}
 {% load static %}
-<html>
-    <head>
-        <title>django-chartjs line chart demo</title>
-        <!--[if lte IE 8]>
-            <script src="{% static 'js/excanvas.js' %}"></script>
-        <![endif]-->
-    </head>
-    <body>
+
+
+{% block main %}
+
         <h1>Some Line Charts loaded in Ajax!</h1>
 
         <canvas id="myChart" width="500" height="400"></canvas>
@@ -21,5 +18,5 @@
                 });
             });
         </script>
-    </body>
-</html>
+
+{% endblock %}
