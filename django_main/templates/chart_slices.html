@@ -11,7 +11,7 @@
           <p class="lead text-muted">{{criteria.description}}</p>
           <p>
             {% for slice in criteria.slices %}
-                <a href="{% url 'slice' slice.id %}" class="btn {% if slice.id == criteria.sliceid %} btn-primary {% endif %} my-2">{{ slice.name }}</a>
+                <a href="{% url 'chartSlicesSpec' id=criteria.chartId slice_type=slice  %}" class="btn {% if criteria.slicename == slice %} btn-primary {% endif %} my-2">{{ slice }}</a>
             {% endfor %}
           </p>
         </div>

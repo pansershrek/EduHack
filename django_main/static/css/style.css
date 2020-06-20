@@ -1,6 +1,6 @@
-.suggest-holder .suggest {
+.suggest-holder .suggest, .suggest-holder .tocompare {
     border: 1px solid white;
-    display: block;
+    display: none;
     position: absolute;
     z-index: 1;
     background: #ddd;
@@ -12,6 +12,13 @@
     top: -15px;
     cursor: help;
     box-shadow: 1px 1px 3px;
+}
+.suggest-holder:hover .suggest, .suggest-holder:hover .tocompare {
+    display: block;
+}
+
+.suggest-holder .tocompare {
+    top: 20px;
 }
 
 .suggest-holder {
@@ -30,3 +37,5 @@
     border: 1px solid #333; /* Параметры рамки */
     white-space: pre;
 }
+
+

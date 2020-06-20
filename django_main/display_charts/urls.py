@@ -64,6 +64,8 @@ def get_charts_for_slices(request, id=1, slice_type=""):
             "criteria": {
                 "name": criteria.label.split('.')[0],
                 "slicename": slice_type,
+                "slices": list(criteria_types.keys()),
+                "chartId": id,
                 "charts": [
                     {
                         "id": label2id[x],
