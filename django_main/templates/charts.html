@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}{{criteria.name}}{% endblock %}
+{% load static %}
+
+{% block title %}
+  {{criteria.name}}
+{% endblock %}
 
 {% block main %}
       <section class="text-center">
         <div class="container">
-          <h1 class="py-3">{{criteria.name}}</h1>
-          <p class="lead text-muted">{{criteria.description}}</p>
+          <h1 class="py-3">{{program.name}}</h1>
+          <p class="lead text-muted">{{program.description}}</p>
         </div>
       </section>
 
@@ -15,19 +19,18 @@
             <div class="col-12">
               <div class="card box-shadow">
                 <canvas id="mainChart"></canvas>
-                
             <script>
             var ctx = document.getElementById('mainChart').getContext('2d');
             var myChart = new Chart(ctx, {
                 type: 'line',
-                data: {{ criteria.mainChart.data }}
+                data: {% autoescape off %} {{ program.mainChart.data }} {% endautoescape %}
             });
             </script>
               </div>
             </div>
           </div>
           <div class="row">
-            {% for chart in criteria.charts %}
+            {% for chart in program.charts %}
             <div class="col-6">
               <div class="card box-shadow">
                 <canvas id="myChart{{chart.id}}"></canvas>
@@ -37,9 +40,10 @@
             </div>
             <script>
             var ctx = document.getElementById('myChart{{chart.id}}').getContext('2d');
+            console.log({% autoescape off %} {{ chart.data }} {% endautoescape %});
             var myChart = new Chart(ctx, {
                 type: 'line',
-                data: {{ chart.data }}
+                data: {% autoescape off %} {{ chart.data }} {% endautoescape %}
             });
             </script>
             {% endfor %}

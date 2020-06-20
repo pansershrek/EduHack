@@ -3,45 +3,96 @@ from django.urls import path
 from .views import line_chart, line_chart_json
 from django.shortcuts import render
 
+from .models import EduProgram, ProgramCriteria
+
+
+from chartjs.colors import COLORS, next_color
+import random
+
 
 def test_touch(request, id):
     return HttpResponse("Ok")
 
 
-class kek_1:
-    id = 1
-    name = "lel"
+def datetime2str(val):
+    return f"{val.year}.{val.month}.{val.day}"
 
 
-def kek(request):
-    return render(request, "programms_list.html", {"programms": [{"id": "1", "name": "kek"}, ]})
+def convert(data_from, data_by):
+    for x, y in data_from:
+        data_by[str(y)] = x
+    kek = list(data_by.items())
+    kek.sort(key=lambda x: str(x[0]))
+    return [y for (x, y) in kek]
 
 
-def lel(request):
+def get_charts(request, id=1):
+    program = EduProgram.objects.get(id=id)
+    timestamps = [
+        x.timestamp for x in ProgramCriteria.objects.filter(program=program)
+    ]
+    timestamps.sort()
+    labels = list(
+        set([x.label for x in ProgramCriteria.objects.filter(program=program)])
+    )
+    labels.sort()
+    data_by_date = {str(x): 0 for x in timestamps}
+    before_agg_criteries = {
+        "labels": timestamps,
+        "datasets": [
+            {
+                "label": x,
+                "backgroundColor": f"rgba({166 + random.randint(-100,40)}, {78 + random.randint(-70,120)},{ 46 + random.randint(-30,100) }, 0.5)",
+                "data": convert([(y.value, y.timestamp) for y in ProgramCriteria.objects.filter(label=x, program=program)], data_by_date.copy())
+            } for x in labels
+        ]
+    }
+    agg_criteries = {
+        "labels": [datetime2str(x) for x in timestamps],
+        "datasets": [
+            {
+                "label": "Agg data",
+                "backgroundColor": f"rgba({166 + random.randint(-100,40)}, {78 + random.randint(-70,120)},{ 46 + random.randint(-30,100) }, 0.5)",
+                "data": [sum([x.value for x in ProgramCriteria.objects.filter(program=program, timestamp=y)]) for y in timestamps]
+            }
+        ]
+    }
+    label2id = {
+        x: ProgramCriteria.objects.filter(label=x)[0].id for x in labels
+    }
     return render(
-        request, "chart_slices.html",
+        request, "charts.html",
         {
-            "criteria": {
-                "name": "NAME", "slicename": "SLICENAME",
-                "slices": [
-                    {"id": "1", "name": "name1"},
-                    {"id": "2", "name": "name2"}
-                ],
+            "program": {
+                "name": program.name,
+                "description": program.description,
+                "mainChart": {
+                    "data": agg_criteries
+                },
                 "charts": [
-                    {"id": 1, "data": [[1, 2, 3], [1, 2, 3]]},
-                    {"id": 2, "data": [[1, 2, 3], [1, 2, 3]]}
+                    {
+                        "id": label2id[x],
+                        "slicesId": label2id[x],
+                        "data": {
+                            "labels": [datetime2str(x)for x in timestamps],
+                            "datasets": [
+                                {
+                                    "label": x,
+                                    "backgroundColor": f"rgba({166 + random.randint(-100,40)}, {78 + random.randint(-70,120)},{ 46 + random.randint(-30,100) }, 0.5)",
+                                    "data": convert([(y.value, y.timestamp) for y in ProgramCriteria.objects.filter(label=x, program=program)], data_by_date.copy())
+                                }
+                            ]
+                        }
+                    }
+                    for x in labels
                 ]
-            },
+            }
 
         }
     )
 
 urlpatterns = [
-    path('', test_touch, name='Test touch'),
-    path('chart', line_chart, name='line_chart'),
-    path('chartJSON', line_chart_json, name='line_chart_json'),
-    path('kek', kek, name="kek"),
-    path('lel', lel, name="lel"),
-    path('programm/<int:id>', test_touch, name="programm"),
-    path('slice/<int:id>', test_touch, name="slice")
+    path("charts/<int:id>", get_charts, name="charts"),
+    path("charts/", get_charts, name="charts"),
+    path("chartSlices/<int:id>", test_touch, name="chartSlices")
 ]
