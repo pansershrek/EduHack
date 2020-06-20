@@ -221,6 +221,34 @@ def get_coef(x):
         return 0
 
 
+def generateCharts(labels, label2id, criteria_has_slices, program, timestamps, data_by_date, request):
+    return [{
+                "id": label2id[x],
+                "slicesId": label2id[x],
+                "has_slices": x in criteria_has_slices,
+                "chart_label": x,
+                "program_id": program.id,
+                "is_in_compare": [x, str(program.id)] in request.session['to_compare'],
+                "description": description_translate(x),
+                "danger_description": danger_suggest(x),
+                "data": {
+                    "labels": timestamps,
+                    "datasets": [
+                        {
+                            "label": label_translate(x),
+                            "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)},1)",
+                            'fill': 0, "lineTension": 0.1,
+                            "data": convert([(y.value, y.timestamp) for y in
+                                             ProgramCriteria.objects.filter(label=x, program=program)],
+                                            data_by_date.copy())
+                        }
+                    ]
+                }
+            }
+            for x in labels]
+
+
+
 def get_charts(request, id=1):
     program = EduProgram.objects.get(id=id)
     program_criterias = ProgramCriteria.objects.filter(program=program)
@@ -241,9 +269,20 @@ def get_charts(request, id=1):
         datetime2str(x.timestamp) for x in program_criterias
     ]))
     timestamps.sort()
+
+    best_labels = {
+        "percent_hired_first_year",
+        "avg_salary_new/avg_region_sal",
+        "student_score",
+        "avg_stud_score_per_year",
+        "percent_teachers_with_hirsh_noless2",
+        "percent_working_student"}
+    all_labels = set([x.label for x in program_criterias])
     labels = list(
-        set([x.label for x in program_criterias])
+         all_labels - best_labels
     )
+    best_labels = list(best_labels.intersection(all_labels))
+    best_labels.sort()
     labels.sort()
     data_by_date = {x: 0 for x in timestamps}
     agg_criteries = {
@@ -259,37 +298,18 @@ def get_charts(request, id=1):
         ]
     }
     label2id = {
-        x: ProgramCriteria.objects.filter(label=x)[0].id for x in labels
+        x: ProgramCriteria.objects.filter(label=x)[0].id for x in labels + best_labels
     }
     if not request.session.get('to_compare'):
         request.session['to_compare'] = list()
 
-    charts = [
-                {
-                    "id": label2id[x],
-                    "slicesId": label2id[x],
-                    "has_slices": x in criteria_has_slices,
-                    "chart_label": x,
-                    "program_id": program.id,
-                    "is_in_compare": [x, str(program.id)] in request.session['to_compare'],
-                    "description": description_translate(x),
-                    "danger_description": danger_suggest(x),
-                    "data": {
-                        "labels": timestamps,
-                        "datasets": [
-                            {
-                                "label": label_translate(x),
-                                "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)},1)",
-                                'fill': 0, "lineTension": 0.1,
-                                "data": convert([(y.value, y.timestamp) for y in
-                                                 ProgramCriteria.objects.filter(label=x, program=program)],
-                                                data_by_date.copy())
-                            }
-                        ]
-                    }
-                }
-                for x in labels
-            ]
+    best_charts = generateCharts(best_labels, label2id, criteria_has_slices, program, timestamps, data_by_date, request)
+
+    for chart in best_charts:
+        calc_stat_for_chart(chart)
+
+    charts = generateCharts(labels, label2id, criteria_has_slices, program, timestamps, data_by_date, request)
+
     for chart in charts:
         calc_stat_for_chart(chart)
 
@@ -301,6 +321,7 @@ def get_charts(request, id=1):
         "data": agg_criteries,
         "is_in_compare": ["Agg_data", str(program.id)] in request.session['to_compare']
     }
+
     calc_stat_for_chart(main_chart)
 
     return render(
@@ -310,6 +331,7 @@ def get_charts(request, id=1):
                 "name": program.name,
                 "description": program.description,
                 "mainChart": main_chart,
+                "bestCharts": best_charts,
                 "charts": charts
             }
 

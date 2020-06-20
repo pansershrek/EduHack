@@ -90,3 +90,6 @@ nav a:hover {
     padding: 10px;
     font-size: 1.5em;
 }
+#additional-charts {
+    display: none;
+}

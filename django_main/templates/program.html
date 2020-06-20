@@ -45,6 +45,44 @@
             </div>
           </div>
           <div class="row">
+            {% for chart in program.bestCharts %}
+            <div class="col-6 my-3 text-center suggest-holder" >
+              <div class="suggest" data-title="{{chart.description}}" >?</div>
+              <div class="toggleCompare {% if chart.is_in_compare %}enabled{% endif %}" data-chart-label="{{chart.chart_label}}" data-program-id="{{chart.program_id}}"  title="добавить к сравнению">
+                <i class="fa fa-clone" aria-hidden="true"></i>
+              </div>
+              {% if chart.danger_description %}
+              <div class="dangerSuggests {% if chart.alert %} alert {% endif %}"  data-title="{{chart.danger_description}}">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+              </div>
+              {% endif %}
+              <div class="statisticSuggests"  data-title="
+Среднее: {{chart.stat.mean}}
+Дисперсия: {{chart.stat.var}}
+Медиана: {{chart.stat.median}}
+">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i>
+              </div>
+              <div class="card box-shadow">
+                <canvas id="myChart{{chart.id}}"></canvas>
+                <br>
+                {% if chart.has_slices %}<a href="{% url 'chartSlices' chart.slicesId %}"> Посмотреть срезы </a>{% endif %}
+              </div>
+            </div>
+            <script>
+            var ctx = document.getElementById('myChart{{chart.id}}').getContext('2d');
+            console.log({% autoescape off %} {{ chart.data }} {% endautoescape %});
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {% autoescape off %} {{ chart.data }} {% endautoescape %}
+            });
+            </script>
+            {% endfor %}
+          </div>
+
+
+          <a href="#" id="show-additional-charts" class=" btn btn-primary">Показать все критерии</a>
+          <div class="row" id="additional-charts">
             {% for chart in program.charts %}
             <div class="col-6 my-3 text-center suggest-holder" >
               <div class="suggest" data-title="{{chart.description}}" >?</div>
