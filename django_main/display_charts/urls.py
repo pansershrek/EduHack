@@ -226,6 +226,9 @@ def upload_data_university(request):
     return redirect("/")
 
 
+def help(request):
+    return render(request, "help.html")
+
 urlpatterns = [
     path("program/<int:id>", get_charts, name="program"),
     path("chartSlices/<int:id>", get_charts_for_slices, name="chartSlices"),
@@ -239,4 +242,5 @@ urlpatterns = [
          name="upload_data_teachers"),
     path("upload_data_students", upload_data_students,
          name="upload_data_students"),
+    path("help", help, name="help"),
 ]
