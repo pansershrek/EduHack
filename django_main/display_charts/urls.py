@@ -11,7 +11,7 @@ from collections import defaultdict
 from .utils.parser_xlsd import parse_teachers_data, parse_university_data, parse_student_data
 import os
 from django.shortcuts import redirect
-from .utils.dict import translate_criteria, criteria2desc
+from .utils.dict import translate_criteria, criteria2desc, save_criteria_tags
 from .forms import UploadForm
 import io
 
@@ -24,6 +24,10 @@ def label_translate(label):
 
 def description_translate(label):
     return criteria2desc[label] if label in criteria2desc else label
+
+
+def danger_suggest(label):
+    return save_criteria_tags[label] if label in save_criteria_tags else ''
 
 
 def test_touch(request, id):
@@ -152,6 +156,7 @@ def get_charts_for_slices(request, id=1, slice_type=""):
                             "program_id": crit.program.id,
                             "is_in_compare": [main_criteria + "." + slice_type + "." + x, str(crit.program.id)] in request.session['to_compare'],
                             "description": description_translate(x),
+                            "danger_description": danger_suggest(x),
                             "data": {
                                 "labels": timestamps,
                                 "datasets": [
@@ -239,6 +244,7 @@ def get_charts(request, id=1):
                 "description": program.description,
                 "mainChart": {
                     "description": description_translate("Agg_data"),
+                    "danger_description": danger_suggest("Agg_data"),
                     "chart_label": "Agg_data",
                     "program_id": program.id,
                     "data": agg_criteries,
@@ -253,6 +259,7 @@ def get_charts(request, id=1):
                         "program_id": program.id,
                         "is_in_compare": [x, str(program.id)] in request.session['to_compare'],
                         "description": description_translate(x),
+                        "danger_description": danger_suggest(x),
                         "data": {
                             "labels": timestamps,
                             "datasets": [

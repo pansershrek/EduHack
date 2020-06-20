@@ -21,6 +21,13 @@
               <div class="toggleCompare {% if program.mainChart.is_in_compare %}enabled{% endif %}" data-chart-label="{{program.mainChart.chart_label}}" data-program-id="{{program.mainChart.program_id}}"  title="добавить к сравнению">
                 <i class="fa fa-clone" aria-hidden="true"></i>
               </div>
+              <div class="dangerSuggests"  data-title="{{program.mainChart.danger_description}}">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+              </div>
+              <div class="statisticSuggests"  data-title="{{program.mainChart.statistics}}">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i>
+              </div>
+
               <div class="card box-shadow ">
                 <canvas id="mainChart"></canvas>
             <script>
@@ -40,7 +47,14 @@
               <div class="toggleCompare {% if chart.is_in_compare %}enabled{% endif %}" data-chart-label="{{chart.chart_label}}" data-program-id="{{chart.program_id}}"  title="добавить к сравнению">
                 <i class="fa fa-clone" aria-hidden="true"></i>
               </div>
-
+              {% if chart.danger_description %}
+              <div class="dangerSuggests"  data-title="{{chart.danger_description}}">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+              </div>
+              {% endif %}
+              <div class="statisticSuggests"  data-title="{{chart.statistics}}">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i>
+              </div>
               <div class="card box-shadow">
                 <canvas id="myChart{{chart.id}}"></canvas>
                 <br>

@@ -1,1 +1,1 @@
-from .dict import translate_criteria, criteria2desc
+from .dict import translate_criteria, criteria2desc, save_criteria_tags

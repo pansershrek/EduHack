@@ -29,6 +29,14 @@
               <div class="card box-shadow">
                 <canvas id="myChart{{chart.id}}"></canvas>
               </div>
+              {% if chart.danger_description %}
+              <div class="dangerSuggests"  data-title="{{chart.danger_description}}">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+              </div>
+              {% endif %}
+              <div class="statisticSuggests"  data-title="{{chart.statistics}}">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i>
+              </div>
             </div>
             <script>
             var ctx = document.getElementById('myChart{{chart.id}}').getContext('2d');

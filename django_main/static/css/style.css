@@ -1,4 +1,8 @@
-.suggest-holder .suggest, .suggest-holder .toggleCompare {
+.suggest-holder .suggest,
+.suggest-holder .dangerSuggests,
+.suggest-holder .statisticSuggests,
+.suggest-holder .toggleCompare
+  {
     border: 1px solid white;
     display: none;
     position: absolute;
@@ -6,11 +10,15 @@
     height: 36px;
     text-align: center;
     border-radius: 50px;
-    right: -5px;
+    right: -10px;
     cursor: help;
     box-shadow: 1px 1px 3px;
+    z-index: 1;
 }
-.suggest-holder:hover .suggest, .suggest-holder:hover .toggleCompare {
+.suggest-holder:hover .suggest,
+.suggest-holder:hover .dangerSuggests,
+.suggest-holder:hover .statisticSuggests,
+.suggest-holder:hover .toggleCompare {
     display: block;
 }
 
@@ -19,18 +27,29 @@
     cursor: pointer;
     font-size: 12px;
     padding: 7px 11px;
-    z-index: 1;
+    z-index: 3;
 }
 .suggest-holder .suggest {
-    z-index: 2;
+    z-index: 4;
     top: -15px;
     padding: 3px 13px;
+}
+.suggest-holder .dangerSuggests {
+    top: 73px;
+    font-size: 12px;
+    padding: 7px 11px;
+    z-index: 2;
+}
+.suggest-holder .statisticSuggests {
+    top: 116px;
+    font-size: 12px;
+    padding: 7px 11px;
+    z-index: 1;
 }
 
 .suggest-holder {
     position:  relative;
 }
-
 
 .toggleCompare.enabled {
     background-color: #f5f;
@@ -40,7 +59,10 @@
     border-color: #222;
 }
 
-.suggest-holder .suggest:hover::after {
+.suggest-holder .suggest:hover::after,
+.suggest-holder .dangerSuggests:hover::after,
+.suggest-holder .statisticSuggests:hover::after
+ {
     content: attr(data-title); /* Выводим текст */
     position: absolute; /* Абсолютное позиционирование */
     right: 0%; top: 30%; /* Положение подсказки */
