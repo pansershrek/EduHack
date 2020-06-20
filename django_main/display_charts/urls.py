@@ -5,7 +5,6 @@ from django.shortcuts import render
 
 from .models import EduProgram, ProgramCriteria
 
-
 from chartjs.colors import COLORS, next_color
 import random
 
@@ -15,7 +14,7 @@ def test_touch(request, id):
 
 
 def datetime2str(val):
-    return f"{val.year}.{val.month}.{val.day}"
+    return f"{val.month}-{val.year}"
 
 
 def convert(data_from, data_by):
@@ -26,34 +25,31 @@ def convert(data_from, data_by):
     return [y for (x, y) in kek]
 
 
+def is_slice(criteria_name):
+    return '.' in criteria_name
+
+
 def get_charts(request, id=1):
     program = EduProgram.objects.get(id=id)
+    program_criterias = [criteria for criteria in ProgramCriteria.objects.filter(program=program) if not is_slice(criteria.label)]
+
     timestamps = [
-        x.timestamp for x in ProgramCriteria.objects.filter(program=program)
+        datetime2str(x.timestamp) for x in program_criterias
     ]
     timestamps.sort()
     labels = list(
-        set([x.label for x in ProgramCriteria.objects.filter(program=program)])
+        set([x.label for x in program_criterias])
     )
     labels.sort()
-    data_by_date = {str(x): 0 for x in timestamps}
-    before_agg_criteries = {
+    data_by_date = {x: 0 for x in timestamps}
+    agg_criteries = {
         "labels": timestamps,
         "datasets": [
             {
-                "label": x,
-                "backgroundColor": f"rgba({166 + random.randint(-100,40)}, {78 + random.randint(-70,120)},{ 46 + random.randint(-30,100) }, 0.5)",
-                "data": convert([(y.value, y.timestamp) for y in ProgramCriteria.objects.filter(label=x, program=program)], data_by_date.copy())
-            } for x in labels
-        ]
-    }
-    agg_criteries = {
-        "labels": [datetime2str(x) for x in timestamps],
-        "datasets": [
-            {
                 "label": "Agg data",
-                "backgroundColor": f"rgba({166 + random.randint(-100,40)}, {78 + random.randint(-70,120)},{ 46 + random.randint(-30,100) }, 0.5)",
-                "data": [sum([x.value for x in ProgramCriteria.objects.filter(program=program, timestamp=y)]) for y in timestamps]
+                "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                "data": [sum([x.value for x in program_criterias if datetime2str(x.timestamp) == y]) for y in
+                         timestamps]
             }
         ]
     }
@@ -74,12 +70,14 @@ def get_charts(request, id=1):
                         "id": label2id[x],
                         "slicesId": label2id[x],
                         "data": {
-                            "labels": [datetime2str(x)for x in timestamps],
+                            "labels": timestamps,
                             "datasets": [
                                 {
                                     "label": x,
-                                    "backgroundColor": f"rgba({166 + random.randint(-100,40)}, {78 + random.randint(-70,120)},{ 46 + random.randint(-30,100) }, 0.5)",
-                                    "data": convert([(y.value, y.timestamp) for y in ProgramCriteria.objects.filter(label=x, program=program)], data_by_date.copy())
+                                    "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                    "data": convert([(y.value, y.timestamp) for y in
+                                                     ProgramCriteria.objects.filter(label=x, program=program)],
+                                                    data_by_date.copy())
                                 }
                             ]
                         }
@@ -90,6 +88,7 @@ def get_charts(request, id=1):
 
         }
     )
+
 
 urlpatterns = [
     path("charts/<int:id>", get_charts, name="charts"),
