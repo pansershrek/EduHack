@@ -8,6 +8,8 @@ from .models import EduProgram, ProgramCriteria
 from chartjs.colors import COLORS, next_color
 import random
 
+from .utils.parser_xlsd import parse_teachers_data
+
 
 def test_touch(request, id):
     return HttpResponse("Ok")
@@ -31,7 +33,8 @@ def is_slice(criteria_name):
 
 def get_charts(request, id=1):
     program = EduProgram.objects.get(id=id)
-    program_criterias = [criteria for criteria in ProgramCriteria.objects.filter(program=program) if not is_slice(criteria.label)]
+    program_criterias = [criteria for criteria in ProgramCriteria.objects.filter(
+        program=program) if not is_slice(criteria.label)]
 
     timestamps = [
         datetime2str(x.timestamp) for x in program_criterias
@@ -89,9 +92,11 @@ def get_charts(request, id=1):
         }
     )
 
+
 def get_programms_list(request):
     program = list(EduProgram.objects.all())
     return render(request, "programms_list.html", {"programms": program})
+
 
 def create_program(request):
     try:
@@ -102,6 +107,12 @@ def create_program(request):
     program = EduProgram(name=request.POST['ProgramName'], description=request.POST['ProgramDescription'])
     program.save()
     return HttpResponseRedirect(reverse('program', args=(program.id, )))
+
+
+def kek(request):
+    ex_file = "display_charts/utils/testXsld/Teacher_Data.xlsx"
+    obj = open(ex_file, 'rb')
+    parse_teachers_data(obj, 1)
 
 
 urlpatterns = [
