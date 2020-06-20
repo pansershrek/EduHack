@@ -11,7 +11,7 @@
           <p class="lead text-muted">{{criteria.description}}</p>
           <p>
             {% for slice in criteria.slices %}
-                <a href="{% url 'slice' slice.id %}" class="btn {% if slice.id == criteria.sliceid %} btn-primary {% endif %} my-2">{{ slice.name }}</a>
+                <a href="{% url 'chartSlicesSpec' id=criteria.chartId slice_type=slice  %}" class="btn {% if criteria.slicename == slice %} btn-primary {% endif %} my-2">{{ slice }}</a>
             {% endfor %}
           </p>
         </div>
@@ -21,7 +21,11 @@
         <div class="container">
           <div class="row">
             {% for chart in criteria.charts %}
-            <div class="col-6">
+            <div class="col-6 suggest-holder">
+              <div class="suggest" data-title="# VirtualHost example:
+# Almost any Apache directive may go into a VirtualHost container.
+# The first VirtualHost section is used for all requests that do not
+# match a ##ServerName or ##ServerAlias in any <VirtualHost> block." >?</div>
               <div class="card box-shadow">
                 <canvas id="myChart{{chart.id}}"></canvas>
               </div>

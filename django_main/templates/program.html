@@ -16,8 +16,9 @@
       <div class="album">
         <div class="container">
           <div class="row">
-            <div class="col-12">
-              <div class="card box-shadow">
+            <div class="col-12 suggest-holder">
+              <div class="suggest">?</div>
+              <div class="card box-shadow ">
                 <canvas id="mainChart"></canvas>
             <script>
             var ctx = document.getElementById('mainChart').getContext('2d');
@@ -31,7 +32,10 @@
           </div>
           <div class="row">
             {% for chart in program.charts %}
-            <div class="col-6 my-3 text-center" >
+            <div class="col-6 my-3 text-center suggest-holder" >              <div class="suggest" data-title="# VirtualHost example:
+# Almost any Apache directive may go into a VirtualHost container.
+# The first VirtualHost section is used for all requests that do not
+# match a ##ServerName or ##ServerAlias in any <VirtualHost> block." >?</div>
               <div class="card box-shadow">
                 <canvas id="myChart{{chart.id}}"></canvas>
                 <br>

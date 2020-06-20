@@ -6,10 +6,12 @@ from django.utils import timezone
 from datetime import datetime
 import traceback
 
+
 def load2db(col, val, date, pr_id):
     tmp = ProgramCriteria(label=col, description="Paste From Map",
-                     value=val, timestamp=date, program=pr_id)
+                          value=val, timestamp=date, program=pr_id)
     tmp.save()
+
 
 def parse_university_data(excel_file, program_id):
     try:
@@ -24,7 +26,6 @@ def parse_university_data(excel_file, program_id):
         for i in range(len(year_arr)):
             temp_date = year_arr[i].date()
             load2db(col, arr[i], temp_date, program_id)
-
 
 
 def parse_student_data(excel_data, program_id ):
@@ -58,8 +59,6 @@ def parse_student_data(excel_data, program_id ):
         cnt = new_data.get("cnt_subjects")[i]
         for col in new_data.columns[2:]:
             load2db("avg_stud_score_per_year.avg_semester_subject." + col[-1:], new_data.get(col)[i] / cnt,temp_date, program_id)
-
-
 
 
 def parse_teachers_data(excel_file, program_id):
