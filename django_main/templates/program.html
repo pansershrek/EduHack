@@ -17,7 +17,7 @@
         <div class="container">
           <div class="row">
             <div class="col-12 suggest-holder">
-              <div class="suggest">?</div>
+              <div class="suggest" data-title="{{program.mainChart.description}}">?</div>
               <div class="toggleCompare {% if program.mainChart.is_in_compare %}enabled{% endif %}" data-chart-label="{{program.mainChart.chart_label}}" data-program-id="{{program.mainChart.program_id}}"  title="добавить к сравнению">
                 <i class="fa fa-clone" aria-hidden="true"></i>
               </div>
@@ -36,10 +36,7 @@
           <div class="row">
             {% for chart in program.charts %}
             <div class="col-6 my-3 text-center suggest-holder" >
-              <div class="suggest" data-title="# VirtualHost example:
-# Almost any Apache directive may go into a VirtualHost container.
-# The first VirtualHost section is used for all requests that do not
-# match a ##ServerName or ##ServerAlias in any <VirtualHost> block." >?</div>
+              <div class="suggest" data-title="{{chart.description}}" >?</div>
               <div class="toggleCompare {% if chart.is_in_compare %}enabled{% endif %}" data-chart-label="{{chart.chart_label}}" data-program-id="{{chart.program_id}}"  title="добавить к сравнению">
                 <i class="fa fa-clone" aria-hidden="true"></i>
               </div>

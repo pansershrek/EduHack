@@ -33,7 +33,7 @@
 
 
 .toggleCompare.enabled {
-    background-color: aliceblue;
+    background-color: #f5f;
 }
 .toggleCompare.disabled {
     background-color: #999;
@@ -43,14 +43,15 @@
 .suggest-holder .suggest:hover::after {
     content: attr(data-title); /* Выводим текст */
     position: absolute; /* Абсолютное позиционирование */
-    left: 20%; top: 30%; /* Положение подсказки */
+    right: 0%; top: 30%; /* Положение подсказки */
     z-index: 1; /* Отображаем подсказку поверх других элементов */
     background: rgba(255,255,230,0.9); /* Полупрозрачный цвет фона */
     font-family: Arial, sans-serif; /* Гарнитура шрифта */
     font-size: 11px; /* Размер текста подсказки */
     padding: 5px 10px; /* Поля */
     border: 1px solid #333; /* Параметры рамки */
-    white-space: pre;
+    white-space: pre-wrap;
+    width: 150px;
 }
 
 nav a {
