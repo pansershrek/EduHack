@@ -176,6 +176,19 @@ def get_charts_for_slices(request, id=1, slice_type=""):
         raise Http404("Для этого графика нет разбивок")
 
 
+def get_coef(x):
+    try:
+        lab = x.label
+    except:
+        return 1
+
+    coef = ParamsWeight.objects.filter(criteria=lab)
+    try:
+        return coef[0].value
+    except:
+        return 1
+
+
 def get_charts(request, id=1):
     program = EduProgram.objects.get(id=id)
     program_criterias = ProgramCriteria.objects.filter(program=program)
@@ -184,18 +197,12 @@ def get_charts(request, id=1):
         if is_slice(criteria.label):
             criteria_has_slices.add(criteria.label.split('.')[0])
     try:
-        lab = program_criterias[0].label
-    except:
-        lab = None
-    coef = ParamsWeight.objects.filter(criteria=lab)
-    try:
-        coef = coef[0].value
         coef_sum = sum([x.value for x in ParamsWeight.objects.all()])
-        if coef_sum <= 0:
-            coef_sum = 1
-        coef /= coef_sum
     except:
-        coef = 1
+        coef_sum = 1
+
+    if coef_sum <= 0:
+        coef_sum = 1
     program_criterias = list(
         filter(lambda x: not is_slice(x.label), program_criterias))
     timestamps = list(set([
@@ -207,7 +214,6 @@ def get_charts(request, id=1):
     )
     labels.sort()
     data_by_date = {x: 0 for x in timestamps}
-
     agg_criteries = {
         "labels": timestamps,
         "datasets": [
@@ -215,7 +221,7 @@ def get_charts(request, id=1):
                 'label': label_translate("Agg_data"),
                 "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
                 'fill': 0, "lineTension": 0.1,
-                "data": [coef * sum([x.value for x in program_criterias if datetime2str(x.timestamp) == y]) for y in
+                "data": [sum([x.value * get_coef(x) / coef_sum for x in program_criterias if datetime2str(x.timestamp) == y]) for y in
                          timestamps]
             }
         ]
