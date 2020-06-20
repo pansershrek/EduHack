@@ -37,7 +37,7 @@ def is_slice(criteria_name):
 
 def compare_charts(request):
     if not request.session.get('to_compare'):
-        raise Http404("Не выбрано графиков для сравнения")
+        return render(request, "compare.html")
 
     timestamps = set()
     graphics_data = []
@@ -296,8 +296,8 @@ def upload_data_university(request):
     return redirect("/")
 
 
-def help(request):
-    return render(request, "help.html")
+def about_us(request):
+    return render(request, "about_us.html")
 
 urlpatterns = [
     path("program/<int:id>", get_charts, name="program"),
@@ -315,5 +315,5 @@ urlpatterns = [
          name="upload_data_teachers"),
     path("upload_data_students", upload_data_students,
          name="upload_data_students"),
-    path("help", help, name="help"),
+    path("about_us", about_us, name="about_us"),
 ]

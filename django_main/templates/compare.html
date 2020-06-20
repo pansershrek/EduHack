@@ -13,7 +13,8 @@
       </section>
 
       <div class="album">
-        <div class="container">
+        <div class="container justify-content-between">
+          {% if compare.data %}
           <div class="row">
             <div class="col-12 suggest-holder">
               <div class="suggest">?</div>
@@ -31,7 +32,14 @@
           </div>
         </div>
       </div>
+
     <div class="text-center"><a href="{% url 'deleteCompareCharts'  %}" class="btn btn-primary">Очистить список сравнения</a></div>
+     {% else %}
+        <br>
+        Пока нет графиков для сравнения, но вы можете их добавить со страницы образовательной программы.
+        <br>
+        <br>
+     {% endif %}
 
 
     

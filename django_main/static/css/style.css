@@ -53,4 +53,14 @@
     white-space: pre;
 }
 
+nav a {
+    color: white;
+    padding: 10px;
+    font-size: 1.5em;
+}
 
+nav a:hover {
+    color: #ddd;
+    padding: 10px;
+    font-size: 1.5em;
+}
