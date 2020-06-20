@@ -43,30 +43,34 @@ def compare_charts(request):
     graphics_data = []
     for (chart_label, program_id) in request.session['to_compare']:
         if chart_label == "Agg_data":
-            graphics_data.append((chart_label, ProgramCriteria.objects.filter(program=program_id)))
+            graphics_data.append(
+                (chart_label, ProgramCriteria.objects.filter(program=program_id)))
         else:
-            graphics_data.append((chart_label, ProgramCriteria.objects.filter(label=chart_label, program=program_id)))
-        timestamps = timestamps.union(set([datetime2str(x.timestamp) for x in graphics_data[-1][1]]))
+            graphics_data.append((chart_label, ProgramCriteria.objects.filter(
+                label=chart_label, program=program_id)))
+        timestamps = timestamps.union(
+            set([datetime2str(x.timestamp) for x in graphics_data[-1][1]]))
 
     timestamps = list(timestamps)
     timestamps.sort()
     data_by_date = {x: 0 for x in timestamps}
     return render(request, "compare.html",
-    {
-        "compare": {
-            "data": {
-                "labels": timestamps,
-                "datasets": [
-                    {
-                        "label": graphic[0],
-                        "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
-                        "data": convert([(y.value, y.timestamp) for y in graphic[1]], data_by_date.copy()) if graphic[0] != "Agg_data" else
-                        [sum([x.value for x in graphic[1] if datetime2str(x.timestamp) == y]) for y in timestamps]
-                    } for graphic in graphics_data
-                ]
-            }
-        }
-    })
+                  {
+                      "compare": {
+                          "data": {
+                              "labels": timestamps,
+                              "datasets": [
+                                  {
+                                      "label": graphic[0],
+                                      "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                      "data": convert([(y.value, y.timestamp) for y in graphic[1]], data_by_date.copy()) if graphic[0] != "Agg_data" else
+                                      [sum([x.value for x in graphic[1] if datetime2str(
+                                          x.timestamp) == y]) for y in timestamps]
+                                  } for graphic in graphics_data
+                              ]
+                          }
+                      }
+                  })
 
 
 def toggle_to_compare(request):
@@ -123,36 +127,36 @@ def get_charts_for_slices(request, id=1, slice_type=""):
         if not request.session.get('to_compare'):
             request.session['to_compare'] = list()
         return render(
-        request, "chart_slices.html",
-        {
-            "criteria": {
-                "name": criteria.label.split('.')[0],
-                "slicename": slice_type,
-                "slices": list(criteria_types.keys()),
-                "chartId": id,
-                "charts": [
-                    {
-                        "id": label2id[x],
-                        "chart_label": main_criteria+"."+slice_type+"."+x,
-                        "program_id": crit.program.id,
-                        "is_in_compare": [main_criteria+"."+slice_type+"."+x, str(crit.program.id)] in request.session['to_compare'],
-                        "data": {
-                            "labels": timestamps,
-                            "datasets": [
-                                {
-                                    "label": x,
-                                    "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
-                                    "data": convert([(y.value, y.timestamp) for y in
-                                                     ProgramCriteria.objects.filter(label=main_criteria+"."+slice_type+"."+x, program=crit.program)],
-                                                    data_by_date.copy())
-                                }
-                            ]
+            request, "chart_slices.html",
+            {
+                "criteria": {
+                    "name": criteria.label.split('.')[0],
+                    "slicename": slice_type,
+                    "slices": list(criteria_types.keys()),
+                    "chartId": id,
+                    "charts": [
+                        {
+                            "id": label2id[x],
+                            "chart_label": main_criteria + "." + slice_type + "." + x,
+                            "program_id": crit.program.id,
+                            "is_in_compare": [main_criteria + "." + slice_type + "." + x, str(crit.program.id)] in request.session['to_compare'],
+                            "data": {
+                                "labels": timestamps,
+                                "datasets": [
+                                    {
+                                        "label": x,
+                                        "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                        "data": convert([(y.value, y.timestamp) for y in
+                                                         ProgramCriteria.objects.filter(label=main_criteria + "." + slice_type + "." + x, program=crit.program)],
+                                                        data_by_date.copy())
+                                    }
+                                ]
+                            }
                         }
-                    }
-                    for x in charts
-                ]
+                        for x in charts
+                    ]
+                }
             }
-        }
         )
 
     else:
@@ -277,7 +281,7 @@ def upload_data_teachers(request):
             pass
     else:
         form = UploadForm
-        return render(request, "upload_data_teacher.html", {"form": form})
+        return render(request, "upload_data_teachers.html", {"form": form})
     return redirect("/")
 
 
@@ -292,7 +296,7 @@ def upload_data_university(request):
             pass
     else:
         form = UploadForm
-        return render(request, "upload_data_teacher.html", {"form": form})
+        return render(request, "upload_data_university.html", {"form": form})
     return redirect("/")
 
 
