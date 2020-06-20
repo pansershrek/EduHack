@@ -10,6 +10,7 @@ import random
 from collections import defaultdict
 from .utils.parser_xlsd import parse_teachers_data, parse_university_data
 import os
+from django.shortcuts import redirect
 
 
 def test_touch(request, id):
@@ -182,6 +183,7 @@ def upload_data(request, id_prog, file_path):
     file_path = os.path.join("display_charts/utils/testXsld/", file_path)
     obj = open(file_path, 'rb')
     parse_university_data(obj, id_prog)
+    return redirect("/")
 
 
 urlpatterns = [
