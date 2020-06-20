@@ -64,7 +64,8 @@ def compare_charts(request):
                               "datasets": [
                                   {
                                       "label": graphic[0],
-                                      "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                      "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                       'fill': 0,"lineTension":0.1,
                                       "data": convert([(y.value, y.timestamp) for y in graphic[1]], data_by_date.copy()) if graphic[0] != "Agg_data" else
                                       [sum([x.value for x in graphic[1] if datetime2str(
                                           x.timestamp) == y]) for y in timestamps]
@@ -146,7 +147,8 @@ def get_charts_for_slices(request, id=1, slice_type=""):
                                 "datasets": [
                                     {
                                         "label": x,
-                                        "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                        "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                         'fill': 0,"lineTension":0.1,
                                         "data": convert([(y.value, y.timestamp) for y in
                                                          ProgramCriteria.objects.filter(label=main_criteria + "." + slice_type + "." + x, program=crit.program)],
                                                         data_by_date.copy())
@@ -186,7 +188,9 @@ def get_charts(request, id=1):
         "labels": timestamps,
         "datasets": [
             {
-                "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                'label': "Agg_data",
+                "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                'fill': 0,"lineTension":0.1,
                 "data": [sum([x.value for x in program_criterias if datetime2str(x.timestamp) == y]) for y in
                          timestamps]
             }
@@ -222,7 +226,8 @@ def get_charts(request, id=1):
                             "datasets": [
                                 {
                                     "label": x,
-                                    "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                    "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                    'fill': 0,"lineTension":0.1,
                                     "data": convert([(y.value, y.timestamp) for y in
                                                      ProgramCriteria.objects.filter(label=x, program=program)],
                                                     data_by_date.copy())
