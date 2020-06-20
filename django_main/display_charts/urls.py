@@ -14,7 +14,7 @@ from django.shortcuts import redirect
 from .utils.dict import translate_criteria, criteria2desc, save_criteria_tags
 from .forms import UploadForm
 import io
-
+import numpy as np
 import logging
 
 
@@ -65,7 +65,13 @@ def compare_charts(request):
                 label=chart_label, program=program_id)))
         timestamps = timestamps.union(
             set([datetime2str(x.timestamp) for x in graphics_data[-1][1]]))
+    try:
+        coef_sum = sum([x.value for x in ParamsWeight.objects.all()])
+    except:
+        coef_sum = 1
 
+    if coef_sum <= 0:
+        coef_sum = 1
     timestamps = list(timestamps)
     timestamps.sort()
     data_by_date = {x: 0 for x in timestamps}
@@ -80,8 +86,8 @@ def compare_charts(request):
                                       "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
                                       'fill': 0, "lineTension":0.1,
                                       "data": convert([(y.value, y.timestamp) for y in graphic[1]], data_by_date.copy()) if graphic[0] != "Agg_data" else
-                                      [sum([x.value for x in graphic[1] if datetime2str(
-                                          x.timestamp) == y]) for y in timestamps]
+                                      [sum([x.value * get_coef(x) / coef_sum for x in graphic[1]
+                                            if datetime2str(x.timestamp) == y]) for y in timestamps]
                                   } for graphic in graphics_data
                               ]
                           }
@@ -113,6 +119,18 @@ def delete_compare_charts(request):
     return HttpResponseRedirect('/')
 
 
+def calc_stat_for_chart(chart):
+    if len(chart['data']['datasets'][0]['data']) > 1:
+        if chart['data']['datasets'][0]['data'][-1] < chart['data']['datasets'][0]['data'][-2]:
+            chart['alert'] = True
+    chart['stat'] = {}
+    arr = np.array(chart['data']['datasets'][0]['data'])
+    arr = arr[arr != 0]
+    chart['stat']['mean'] = arr.mean()
+    chart['stat']['var'] = arr.var()
+    chart['stat']['median'] = np.median(arr)
+
+
 def get_charts_for_slices(request, id=1, slice_type=""):
     crit = ProgramCriteria.objects.get(id=id)
     program_criterias = [criteria for criteria in ProgramCriteria.objects.filter(
@@ -141,6 +159,38 @@ def get_charts_for_slices(request, id=1, slice_type=""):
         }
         if not request.session.get('to_compare'):
             request.session['to_compare'] = list()
+
+        charts = [
+            {
+                "id": label2id[x],
+                "chart_label": main_criteria + "." + slice_type + "." + x,
+                "program_id": crit.program.id,
+                "is_in_compare": [main_criteria + "." + slice_type + "." + x, str(crit.program.id)] in request.session[
+                    'to_compare'],
+                "description": description_translate(x),
+                "danger_description": danger_suggest(x),
+                "data": {
+                    "labels": timestamps,
+                    "datasets": [
+                        {
+                            "label": label_translate(x),
+                            "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
+                            'fill': 0, "lineTension": 0.1,
+                            "data": convert([(y.value, y.timestamp) for y in
+                                             ProgramCriteria.objects.filter(
+                                                 label=main_criteria + "." + slice_type + "." + x,
+                                                 program=crit.program)],
+                                            data_by_date.copy())
+                        }
+                    ]
+                }
+            }
+            for x in charts
+        ]
+
+        for chart in charts:
+            calc_stat_for_chart(chart)
+
         return render(
             request, "chart_slices.html",
             {
@@ -149,30 +199,7 @@ def get_charts_for_slices(request, id=1, slice_type=""):
                     "slicename": slice_type,
                     "slices": list(criteria_types.keys()),
                     "chartId": id,
-                    "charts": [
-                        {
-                            "id": label2id[x],
-                            "chart_label": main_criteria + "." + slice_type + "." + x,
-                            "program_id": crit.program.id,
-                            "is_in_compare": [main_criteria + "." + slice_type + "." + x, str(crit.program.id)] in request.session['to_compare'],
-                            "description": description_translate(x),
-                            "danger_description": danger_suggest(x),
-                            "data": {
-                                "labels": timestamps,
-                                "datasets": [
-                                    {
-                                        "label": label_translate(x),
-                                        "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
-                                        'fill': 0, "lineTension": 0.1,
-                                        "data": convert([(y.value, y.timestamp) for y in
-                                                         ProgramCriteria.objects.filter(label=main_criteria + "." + slice_type + "." + x, program=crit.program)],
-                                                        data_by_date.copy())
-                                    }
-                                ]
-                            }
-                        }
-                        for x in charts
-                    ]
+                    "charts": charts
                 }
             }
         )
@@ -191,7 +218,7 @@ def get_coef(x):
     try:
         return coef[0].value
     except:
-        return 1
+        return 0
 
 
 def get_charts(request, id=1):
@@ -236,46 +263,54 @@ def get_charts(request, id=1):
     }
     if not request.session.get('to_compare'):
         request.session['to_compare'] = list()
+
+    charts = [
+                {
+                    "id": label2id[x],
+                    "slicesId": label2id[x],
+                    "has_slices": x in criteria_has_slices,
+                    "chart_label": x,
+                    "program_id": program.id,
+                    "is_in_compare": [x, str(program.id)] in request.session['to_compare'],
+                    "description": description_translate(x),
+                    "danger_description": danger_suggest(x),
+                    "data": {
+                        "labels": timestamps,
+                        "datasets": [
+                            {
+                                "label": label_translate(x),
+                                "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)},1)",
+                                'fill': 0, "lineTension": 0.1,
+                                "data": convert([(y.value, y.timestamp) for y in
+                                                 ProgramCriteria.objects.filter(label=x, program=program)],
+                                                data_by_date.copy()) + [-1]
+                            }
+                        ]
+                    }
+                }
+                for x in labels
+            ]
+    for chart in charts:
+        calc_stat_for_chart(chart)
+
+    main_chart = {
+        "description": description_translate("Agg_data"),
+        "danger_description": danger_suggest("Agg_data"),
+        "chart_label": "Agg_data",
+        "program_id": program.id,
+        "data": agg_criteries,
+        "is_in_compare": ["Agg_data", str(program.id)] in request.session['to_compare']
+    }
+    calc_stat_for_chart(main_chart)
+
     return render(
         request, "program.html",
         {
             "program": {
                 "name": program.name,
                 "description": program.description,
-                "mainChart": {
-                    "description": description_translate("Agg_data"),
-                    "danger_description": danger_suggest("Agg_data"),
-                    "chart_label": "Agg_data",
-                    "program_id": program.id,
-                    "data": agg_criteries,
-                    "is_in_compare": ["Agg_data", str(program.id)] in request.session['to_compare']
-                },
-                "charts": [
-                    {
-                        "id": label2id[x],
-                        "slicesId": label2id[x],
-                        "has_slices": x in criteria_has_slices,
-                        "chart_label": x,
-                        "program_id": program.id,
-                        "is_in_compare": [x, str(program.id)] in request.session['to_compare'],
-                        "description": description_translate(x),
-                        "danger_description": danger_suggest(x),
-                        "data": {
-                            "labels": timestamps,
-                            "datasets": [
-                                {
-                                    "label": label_translate(x),
-                                    "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)},1)",
-                                    'fill': 0, "lineTension": 0.1,
-                                    "data": convert([(y.value, y.timestamp) for y in
-                                                     ProgramCriteria.objects.filter(label=x, program=program)],
-                                                    data_by_date.copy())
-                                }
-                            ]
-                        }
-                    }
-                    for x in labels
-                ]
+                "mainChart": main_chart,
+                "charts": charts
             }
 
         }

@@ -34,17 +34,20 @@
     top: -15px;
     padding: 3px 13px;
 }
-.suggest-holder .dangerSuggests {
-    top: 73px;
-    font-size: 12px;
-    padding: 7px 11px;
-    z-index: 2;
+.suggest-holder .dangerSuggests.alert {
+    background-color: red;
 }
-.suggest-holder .statisticSuggests {
+.suggest-holder .dangerSuggests {
     top: 116px;
     font-size: 12px;
     padding: 7px 11px;
     z-index: 1;
+}
+.suggest-holder .statisticSuggests {
+    top: 73px;
+    font-size: 12px;
+    padding: 7px 11px;
+    z-index: 2;
 }
 
 .suggest-holder {
