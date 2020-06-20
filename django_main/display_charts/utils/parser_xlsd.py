@@ -6,6 +6,26 @@ from django.utils import timezone
 from datetime import datetime
 import traceback
 
+def load2db(col, val, date, pr_id):
+    tmp = ProgramCriteria(label=col, description="Paste From Map",
+                     value=val, timestamp=date, program=pr_id)
+    tmp.save()
+
+def parse_university_data(excel_file, program_id):
+    try:
+        program_id = EduProgram.objects.get(id=program_id)
+    except:
+        return
+    data = pd.read_excel(excel_file)
+    year_arr = data.get("date").array
+
+    for col in data.columns[1:]:
+        arr = data.get(col).array.fillna(0)
+        for i in range(len(year_arr)):
+            temp_date = year_arr[i].date()
+            load2db(col, arr[i], temp_date, program_id)
+
+
 
 def parse_teachers_data(excel_file, program_id):
     try:
