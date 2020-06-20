@@ -31,10 +31,12 @@ class ProgramCriteria(models.Model):
     )
 
     def __str__(self):
-        return f"{self.program.name}_{self.program}"
+        return f"{self.program.name}_{self.program}_{timestamp}"
 
 
 class ParamsWeight(models.Model):
-    program = models.ForeignKey(EduProgram, on_delete=models.CASCADE)
-    criteria = models.ForeignKey(ProgramCriteria, on_delete=models.CASCADE)
+    criteria = models.TextField(help_text="Name of criteria")
     value = models.FloatField(help_text="Value of coef")
+
+    def __str__(self):
+        return f"ParamsWeight_{self.criteria}"

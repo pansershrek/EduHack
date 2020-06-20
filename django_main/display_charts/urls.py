@@ -3,7 +3,7 @@ from django.urls import path, reverse
 from .views import line_chart, line_chart_json
 from django.shortcuts import render
 
-from .models import EduProgram, ProgramCriteria
+from .models import EduProgram, ProgramCriteria, ParamsWeight
 
 from chartjs.colors import COLORS, next_color
 import random
@@ -78,7 +78,7 @@ def compare_charts(request):
                                   {
                                       "label": label_translate(graphic[0]),
                                       "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
-                                       'fill': 0,"lineTension":0.1,
+                                      'fill': 0, "lineTension":0.1,
                                       "data": convert([(y.value, y.timestamp) for y in graphic[1]], data_by_date.copy()) if graphic[0] != "Agg_data" else
                                       [sum([x.value for x in graphic[1] if datetime2str(
                                           x.timestamp) == y]) for y in timestamps]
@@ -163,7 +163,7 @@ def get_charts_for_slices(request, id=1, slice_type=""):
                                     {
                                         "label": label_translate(x),
                                         "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
-                                         'fill': 0,"lineTension":0.1,
+                                        'fill': 0, "lineTension": 0.1,
                                         "data": convert([(y.value, y.timestamp) for y in
                                                          ProgramCriteria.objects.filter(label=main_criteria + "." + slice_type + "." + x, program=crit.program)],
                                                         data_by_date.copy())
@@ -188,6 +188,19 @@ def get_charts(request, id=1):
     for criteria in program_criterias:
         if is_slice(criteria.label):
             criteria_has_slices.add(criteria.label.split('.')[0])
+    try:
+        lab = program_criterias[0].label
+    except:
+        lab = None
+    coef = ParamsWeight.objects.filter(criteria=lab)
+    try:
+        coef = coef[0].value
+        coef_sum = sum([x.value for x in ParamsWeight.objects.all()])
+        if coef_sum <= 0:
+            coef_sum = 1
+        coef /= coef_sum
+    except:
+        coef = 1
     program_criterias = list(
         filter(lambda x: not is_slice(x.label), program_criterias))
     timestamps = list(set([
@@ -199,14 +212,15 @@ def get_charts(request, id=1):
     )
     labels.sort()
     data_by_date = {x: 0 for x in timestamps}
+
     agg_criteries = {
         "labels": timestamps,
         "datasets": [
             {
                 'label': label_translate("Agg_data"),
                 "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 1)",
-                'fill': 0,"lineTension":0.1,
-                "data": [sum([x.value for x in program_criterias if datetime2str(x.timestamp) == y]) for y in
+                'fill': 0, "lineTension": 0.1,
+                "data": [coef * sum([x.value for x in program_criterias if datetime2str(x.timestamp) == y]) for y in
                          timestamps]
             }
         ]
@@ -246,7 +260,7 @@ def get_charts(request, id=1):
                                 {
                                     "label": label_translate(x),
                                     "borderColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)},1)",
-                                    'fill': 0,"lineTension":0.1,
+                                    'fill': 0, "lineTension": 0.1,
                                     "data": convert([(y.value, y.timestamp) for y in
                                                      ProgramCriteria.objects.filter(label=x, program=program)],
                                                     data_by_date.copy())
