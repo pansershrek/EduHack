@@ -11,6 +11,8 @@ from collections import defaultdict
 from .utils.parser_xlsd import parse_teachers_data, parse_university_data
 import os
 from django.shortcuts import redirect
+from .forms import UploadForm
+import io
 
 
 def test_touch(request, id):
@@ -61,34 +63,34 @@ def get_charts_for_slices(request, id=1, slice_type=""):
             x: ProgramCriteria.objects.filter(label=main_criteria + "." + slice_type + "." + x)[0].id for x in charts
         }
         return render(
-        request, "chart_slices.html",
-        {
-            "criteria": {
-                "name": criteria.label.split('.')[0],
-                "slicename": slice_type,
-                "slices": list(criteria_types.keys()),
-                "chartId": id,
-                "charts": [
-                    {
-                        "id": label2id[x],
-                        "data": {
-                            "labels": timestamps,
-                            "datasets": [
-                                {
-                                    "label": x,
-                                    "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
-                                    "data": convert([(y.value, y.timestamp) for y in
-                                                     ProgramCriteria.objects.filter(label=main_criteria+"."+slice_type+"."+x, program=crit.program)],
-                                                    data_by_date.copy())
-                                }
-                            ]
+            request, "chart_slices.html",
+            {
+                "criteria": {
+                    "name": criteria.label.split('.')[0],
+                    "slicename": slice_type,
+                    "slices": list(criteria_types.keys()),
+                    "chartId": id,
+                    "charts": [
+                        {
+                            "id": label2id[x],
+                            "data": {
+                                "labels": timestamps,
+                                "datasets": [
+                                    {
+                                        "label": x,
+                                        "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                        "data": convert([(y.value, y.timestamp) for y in
+                                                         ProgramCriteria.objects.filter(label=main_criteria + "." + slice_type + "." + x, program=crit.program)],
+                                                        data_by_date.copy())
+                                    }
+                                ]
+                            }
                         }
-                    }
-                    for x in charts
-                ]
+                        for x in charts
+                    ]
+                }
             }
-        }
-    )
+        )
 
     else:
         raise Http404("Для этого графика нет разбивок")
@@ -179,11 +181,18 @@ def create_program(request):
     return HttpResponseRedirect(reverse('program', args=(program.id, )))
 
 
-def upload_data(request, id_prog, file_path):
-    #ex_file = "display_charts/utils/testXsld/Univer_Info_Data.xlsx"
-    file_path = os.path.join("display_charts/utils/testXsld/", file_path)
-    obj = open(file_path, 'rb')
-    parse_university_data(obj, id_prog)
+def upload_data(request):
+    if request.method == "POST":
+        try:
+            form = UploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                data = io.BytesIO(request.FILES['file'].read())
+                parse_teachers_data(data, request.POST['name'])
+        except:
+            pass
+    else:
+        form = UploadForm
+        return render(request, "upload_data.html", {"form": form})
     return redirect("/")
 
 
@@ -194,6 +203,5 @@ urlpatterns = [
          get_charts_for_slices, name="chartSlicesSpec"),
     path("create_program", create_program, name="create_program"),
     path("", get_programms_list, name="programms_list"),
-    path("upload_data/<int:id_prog>/<str:file_path>",
-         upload_data, name="upload_data"),
+    path("upload_data", upload_data, name="upload_data"),
 ]
