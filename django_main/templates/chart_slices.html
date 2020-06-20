@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
-{% block title %}Разбивка {{criteria.name}} по {{criteria.slicename}}{% endblock %}
+{% load static %}
+{% block title %}
+Разбивка {{criteria.name}} по {{criteria.slicename}}
+{% endblock %}
 
 {% block main %}
       <section class="text-center">
@@ -8,7 +11,7 @@
           <p class="lead text-muted">{{criteria.description}}</p>
           <p>
             {% for slice in criteria.slices %}
-                <a href="{% url 'slice' slice.id %}" class="btn {% if slice.id = criteria.sliceid %} btn-primary {% endif %} my-2">{{ slice.name }}</a>
+                <a href="{% url 'slice' slice.id %}" class="btn {% if slice.id == criteria.sliceid %} btn-primary {% endif %} my-2">{{ slice.name }}</a>
             {% endfor %}
           </p>
         </div>
@@ -28,12 +31,11 @@
             var myChart = new Chart(ctx, {
                 type: 'line',
                 data: {{ chart.data }}
-            });
+              });
             </script>
             {% endfor %}
           </div>
         </div>
       </div>
 
-    
 {% endblock %}
