@@ -1,5 +1,5 @@
-from django.http import HttpResponse
-from django.urls import path
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.urls import path, reverse
 from .views import line_chart, line_chart_json
 from django.shortcuts import render
 
@@ -57,7 +57,7 @@ def get_charts(request, id=1):
         x: ProgramCriteria.objects.filter(label=x)[0].id for x in labels
     }
     return render(
-        request, "charts.html",
+        request, "program.html",
         {
             "program": {
                 "name": program.name,
@@ -93,9 +93,21 @@ def get_programms_list(request):
     program = list(EduProgram.objects.all())
     return render(request, "programms_list.html", {"programms": program})
 
+def create_program(request):
+    try:
+        a = EduProgram.objects.get(name=request.POST['ProgramName'])
+        raise Http404("Программа с таким именем уже существует")
+    except:
+        pass
+    program = EduProgram(name=request.POST['ProgramName'], description=request.POST['ProgramDescription'])
+    program.save()
+    return HttpResponseRedirect(reverse('program', args=(program.id, )))
+
+
 urlpatterns = [
-    path("charts/<int:id>", get_charts, name="charts"),
+    path("program/<int:id>", get_charts, name="program"),
     path("charts/", get_charts, name="charts"),
     path("chartSlices/<int:id>", test_touch, name="chartSlices"),
-    path("programms_list", get_programms_list, name="programms_list")
+    path("/create_program", create_program, name="create_program"),
+    path("", get_programms_list, name="programms_list")
 ]
