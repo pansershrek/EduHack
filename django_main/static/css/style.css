@@ -1,28 +1,43 @@
-.suggest-holder .suggest, .suggest-holder .tocompare {
+.suggest-holder .suggest, .suggest-holder .toggleCompare {
     border: 1px solid white;
     display: none;
     position: absolute;
-    z-index: 1;
     background: #ddd;
-    padding: 3px 13px;
     height: 36px;
     text-align: center;
     border-radius: 50px;
     right: -5px;
-    top: -15px;
     cursor: help;
     box-shadow: 1px 1px 3px;
 }
-.suggest-holder:hover .suggest, .suggest-holder:hover .tocompare {
+.suggest-holder:hover .suggest, .suggest-holder:hover .toggleCompare {
     display: block;
 }
 
-.suggest-holder .tocompare {
-    top: 20px;
+.suggest-holder .toggleCompare {
+    top: 30px;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 7px 11px;
+    z-index: 1;
+}
+.suggest-holder .suggest {
+    z-index: 2;
+    top: -15px;
+    padding: 3px 13px;
 }
 
 .suggest-holder {
     position:  relative;
+}
+
+
+.toggleCompare.enabled {
+    background-color: aliceblue;
+}
+.toggleCompare.disabled {
+    background-color: #999;
+    border-color: #222;
 }
 
 .suggest-holder .suggest:hover::after {

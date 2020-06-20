@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Сравнение графиков
+{% endblock %}
+
+{% block main %}
+      <section class="text-center">
+        <div class="container">
+          <h1 class="py-3">Сравнение выбранных графиков</h1>
+        </div>
+      </section>
+
+      <div class="album">
+        <div class="container">
+          <div class="row">
+            <div class="col-12 suggest-holder">
+              <div class="suggest">?</div>
+              <div class="card box-shadow ">
+                <canvas id="mainChart"></canvas>
+            <script>
+            var ctx = document.getElementById('mainChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {% autoescape off %} {{ compare.data }} {% endautoescape %}
+            });
+            </script>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <div class="text-center"><a href="{% url 'deleteCompareCharts'  %}" class="btn btn-primary">Очистить список сравнения</a></div>
+
+
+    
+{% endblock %}
