@@ -30,7 +30,7 @@
             var ctx = document.getElementById('myChart{{chart.id}}').getContext('2d');
             var myChart = new Chart(ctx, {
                 type: 'line',
-                data: {{ chart.data }}
+                data: {% autoescape off %} {{ chart.data }}{% endautoescape %}
               });
             </script>
             {% endfor %}

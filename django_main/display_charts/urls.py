@@ -7,8 +7,8 @@ from .models import EduProgram, ProgramCriteria
 
 from chartjs.colors import COLORS, next_color
 import random
-
-from .utils.parser_xlsd import parse_teachers_data
+from collections import defaultdict
+from .utils.parser_xlsd import parse_teachers_data, parse_university_data
 
 
 def test_touch(request, id):
@@ -31,14 +31,78 @@ def is_slice(criteria_name):
     return '.' in criteria_name
 
 
+def get_charts_for_slices(request, id=1, slice_type=""):
+    crit = ProgramCriteria.objects.get(id=id)
+    program_criterias = [criteria for criteria in ProgramCriteria.objects.filter(
+        program=crit.program) if is_slice(criteria.label) and crit.label == criteria.label.split('.')[0]]
+
+    if len(program_criterias) > 0:
+        criteria_types = defaultdict(list)
+        main_criteria = ""
+        for criteria in program_criterias:
+            criteria_types[criteria.label.split('.')[1]].append(criteria)
+            main_criteria = criteria.label.split('.')[0]
+
+        if not slice_type:
+            slice_type = list(set(criteria_types.keys()))[0]
+
+        charts = set()
+        for criteria in criteria_types[slice_type]:
+            charts.add(criteria.label.split('.')[2])
+
+        timestamps = list(set([
+            datetime2str(x.timestamp) for x in criteria_types[slice_type]
+        ]))
+        timestamps.sort()
+        data_by_date = {x: 0 for x in timestamps}
+        label2id = {
+            x: ProgramCriteria.objects.filter(label=main_criteria+"."+slice_type+"."+x)[0].id for x in charts
+        }
+        return render(
+        request, "chart_slices.html",
+        {
+            "criteria": {
+                "name": criteria.label.split('.')[0],
+                "slicename": slice_type,
+                "charts": [
+                    {
+                        "id": label2id[x],
+                        "data": {
+                            "labels": timestamps,
+                            "datasets": [
+                                {
+                                    "label": x,
+                                    "backgroundColor": f"rgba({166 + random.randint(-100, 40)}, {78 + random.randint(-70, 120)},{46 + random.randint(-30, 100)}, 0.5)",
+                                    "data": convert([(y.value, y.timestamp) for y in
+                                                     ProgramCriteria.objects.filter(label=main_criteria+"."+slice_type+"."+x, program=crit.program)],
+                                                    data_by_date.copy())
+                                }
+                            ]
+                        }
+                    }
+                    for x in charts
+                ]
+            }
+
+        }
+    )
+
+    else:
+        raise Http404("Для этого графика нет разбивок")
+
+
 def get_charts(request, id=1):
     program = EduProgram.objects.get(id=id)
-    program_criterias = [criteria for criteria in ProgramCriteria.objects.filter(
-        program=program) if not is_slice(criteria.label)]
+    program_criterias = ProgramCriteria.objects.filter(program=program)
+    criteria_has_slices = set()
+    for criteria in program_criterias:
+        if is_slice(criteria.label):
+            criteria_has_slices.add(criteria.label.split('.')[0])
 
-    timestamps = [
+    program_criterias = list(filter(lambda x: not is_slice(x.label), program_criterias))
+    timestamps = list(set([
         datetime2str(x.timestamp) for x in program_criterias
-    ]
+    ]))
     timestamps.sort()
     labels = list(
         set([x.label for x in program_criterias])
@@ -72,6 +136,7 @@ def get_charts(request, id=1):
                     {
                         "id": label2id[x],
                         "slicesId": label2id[x],
+                        "has_slices": x in criteria_has_slices,
                         "data": {
                             "labels": timestamps,
                             "datasets": [
@@ -110,15 +175,16 @@ def create_program(request):
 
 
 def kek(request):
-    ex_file = "display_charts/utils/testXsld/Teacher_Data.xlsx"
+    ex_file = "display_charts/utils/testXsld/Univer_Info_Data.xlsx"
     obj = open(ex_file, 'rb')
-    parse_teachers_data(obj, 1)
+    parse_university_data(obj, 1)
 
 
 urlpatterns = [
     path("program/<int:id>", get_charts, name="program"),
-    path("charts/", get_charts, name="charts"),
-    path("chartSlices/<int:id>", test_touch, name="chartSlices"),
-    path("/create_program", create_program, name="create_program"),
-    path("", get_programms_list, name="programms_list")
+    path("chartSlices/<int:id>", get_charts_for_slices, name="chartSlices"),
+    path("chartSlices/<int:id>/<str:slice_type>", get_charts_for_slices, name="chartSlicesSpec"),
+    path("create_program", create_program, name="create_program"),
+    path("", get_programms_list, name="programms_list"),
+    path("kek", kek, name="kek"),
 ]

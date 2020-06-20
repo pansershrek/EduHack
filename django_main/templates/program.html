@@ -31,11 +31,11 @@
           </div>
           <div class="row">
             {% for chart in program.charts %}
-            <div class="col-6">
+            <div class="col-6 my-3 text-center" >
               <div class="card box-shadow">
                 <canvas id="myChart{{chart.id}}"></canvas>
                 <br>
-                <a href="{% url 'chartSlices' chart.slicesId %}"> </a>
+                {% if chart.has_slices %}<a href="{% url 'chartSlices' chart.slicesId %}"> Посмотреть срезы </a>{% endif %}
               </div>
             </div>
             <script>
