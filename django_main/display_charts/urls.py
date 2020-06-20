@@ -103,7 +103,6 @@ def get_charts_for_slices(request, id=1, slice_type=""):
     crit = ProgramCriteria.objects.get(id=id)
     program_criterias = [criteria for criteria in ProgramCriteria.objects.filter(
         program=crit.program) if is_slice(criteria.label) and crit.label == criteria.label.split('.')[0]]
-
     if len(program_criterias) > 0:
         criteria_types = defaultdict(list)
         main_criteria = ""
@@ -172,7 +171,6 @@ def get_charts(request, id=1):
     for criteria in program_criterias:
         if is_slice(criteria.label):
             criteria_has_slices.add(criteria.label.split('.')[0])
-
     program_criterias = list(
         filter(lambda x: not is_slice(x.label), program_criterias))
     timestamps = list(set([
@@ -264,8 +262,9 @@ def upload_data_students(request):
             if form.is_valid():
                 data = io.BytesIO(request.FILES['file'].read())
                 parse_student_data(data, request.POST['name'])
+                logging.error("Succes save students")
         except BaseException as e:
-            logging.error(e)
+            logging.error(f"Students {e}")
     else:
         form = UploadForm
         return render(request, "upload_data_students.html", {"form": form})
@@ -279,8 +278,9 @@ def upload_data_teachers(request):
             if form.is_valid():
                 data = io.BytesIO(request.FILES['file'].read())
                 parse_teachers_data(data, request.POST['name'])
+                logging.error("Succes save teachers")
         except BaseException as e:
-            logging.error(e)
+            logging.error(f"Teacher {e}")
     else:
         form = UploadForm
         return render(request, "upload_data_teachers.html", {"form": form})
@@ -294,8 +294,9 @@ def upload_data_university(request):
             if form.is_valid():
                 data = io.BytesIO(request.FILES['file'].read())
                 parse_university_data(data, request.POST['name'])
+            logging.error("Succes save University")
         except BaseException as e:
-            logging.error(e)
+            logging.error(f"University {e}")
     else:
         form = UploadForm
         return render(request, "upload_data_university.html", {"form": form})
