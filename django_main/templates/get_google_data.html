@@ -2,12 +2,29 @@
 {% block title %} Загрузка данных из Google Forms {% endblock %}
 
 {% block main %}
-
-    <form method="POST" action="" enctype="multipart/form-data">
-        {% csrf_token %}
-    <table>
-        {{ form.as_p }}
-    </table>
-    <input type="submit" value="Send" >
-
+<div class="container justify-content-between">
+    {% if success %}
+    <div class="my-3 bg-success  p-3 mb-2">
+        Документ успешно импортирован
+    </div>
+    {% endif %}
+    <div class="my-3">
+        Для загрузки критериев предоставьте доступ к таблице с результатами опросов пользователю hack-44@hack-280923.iam.gserviceaccount.com
+    </div>
+    {% for document in documents %}
+    <div class="document">
+        <a href="{{document.link}}"> {{document.name}} </a>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="document_id" value="{{document.id}}">
+            <select name="program_id" required="" id="id_name">
+              {% for program in programs %}
+                <option value="{{program.id}}">{{program.name}}</option>
+              {% endfor %}
+            </select>
+            <input type="submit" class="btn btn-primary" value="Импортировать">
+        </form>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

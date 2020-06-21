@@ -25,7 +25,7 @@ def parse_data_from_google_sheets(file_id, program_id):
     credentials = service_account.Credentials.from_service_account_file(
         SECRETS_FILE, scopes=SCOPE)
 
-    service = build('drive', 'v3', credentials=credentials)
+    service = build('drive', 'v3', credentials=credentials, cache_discovery=False)
     request = service.files().export_media(fileId=file_id,
                                            mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
