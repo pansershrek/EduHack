@@ -63,6 +63,7 @@ translate_criteria = {
     "p2p_score" : "оценка_от_преподавателей",
     "student_score":"оценка_от_студентов",
     "number_of_articles.teachers.":"количество_статей.преподаватель.",
+    "avg_stud_score_per_year": "среднегодовая оценка студента"
 
 }
 
