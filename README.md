@@ -73,7 +73,7 @@ docker exec focused_engelbart bash -c "python manage.py load_crit"
 Для начала пример можно посмотреть в самой форме на странице "Импорт из Google Forms", смысл такой же
 Пример данных:
 ```
-date	               |  teacher_id |   p2p_score
+date	                |  teacher_id |   p2p_score
 2015-09-01 00:00:00	 |     1	     |  1,546972889
 2016-09-01 00:00:00	 |     1	     |  4,686970885
 2017-09-01 00:00:00	 |     1	     |  1,809467181
