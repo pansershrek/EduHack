@@ -1,4 +1,4 @@
-# EduHack
+# EdGraph
 
 # Run app
 Для запуска приложения на Linux в проект добавлен run.sh файл, запускаем 
@@ -79,5 +79,11 @@ date	                   teacher_id           p2p_score
 2018-09-01 00:00:00	 |     1	     |  4,280270179
 2019-09-01 00:00:00	 |     1	     |  1,628968108
 ```
+
+# With Love from
+
+*Hikkir's Command*
+
+
 
 
