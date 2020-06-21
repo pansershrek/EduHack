@@ -5,12 +5,37 @@ from display_charts.models import ProgramCriteria, EduProgram
 from django.utils import timezone
 from datetime import datetime
 import traceback
+from google.oauth2 import service_account
+from googleapiclient.http import MediaIoBaseDownload,MediaFileUpload
+from googleapiclient.discovery import build
+import pprint
+import io
+import itertools
 
+SCOPE = ["https://www.googleapis.com/auth/drive"]
+SECRETS_FILE = "keys/Hack-f26ccff9907e.json"
 
 def load2db(col, val, date, pr_id):
     tmp = ProgramCriteria(label=col, description="Paste From Map",
                           value=val, timestamp=date, program=pr_id)
     tmp.save()
+
+
+def parse_data_from_google_sheets(file_id, program_id):
+    credentials = service_account.Credentials.from_service_account_file(
+        SECRETS_FILE, scopes=SCOPE)
+
+    service = build('drive', 'v3', credentials=credentials)
+    request = service.files().export_media(fileId=file_id,
+                                           mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+    fh = io.BytesIO()
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+    # print ("Download %d%%." % int(status.progress() * 100))
+    parse_university_data(fh, program_id)
 
 
 def parse_university_data(excel_file, program_id):
@@ -19,6 +44,7 @@ def parse_university_data(excel_file, program_id):
     except:
         return
     data = pd.read_excel(excel_file)
+    data.columns = itertools.chain(["date"], data.columns[1:])
     year_arr = data.get("date").array
 
     for col in data.columns[1:]:
