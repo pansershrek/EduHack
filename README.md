@@ -8,7 +8,8 @@
 Для Windows использовать команду 
 
 ```bash
-docker -compose
+docker-compose up -d --build
+docker exec focused_engelbart bash -c "python manage.py load_crit"
 ```
 # Quick Start
 При первом запуске будут доступны различные образовательные программы, на которых можно понять, как устроено приложение. 
