@@ -11,9 +11,19 @@ from collections import defaultdict
 from .utils.parser_xlsd import parse_teachers_data, parse_university_data, parse_student_data
 import os
 from django.shortcuts import redirect
-from .utils.dict import translate_criteria, criteria2desc, save_criteria_tags
-from .forms import UploadForm
+from .utils.dict import translate_criteria, criteria2desc
+from .forms import UploadForm, GoogleForm
 import io
+
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+
+from google.oauth2 import service_account
+from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
+from googleapiclient.discovery import build
+import pickle
+
 
 import logging
 
@@ -24,10 +34,6 @@ def label_translate(label):
 
 def description_translate(label):
     return criteria2desc[label] if label in criteria2desc else label
-
-
-def danger_suggest(label):
-    return save_criteria_tags[label] if label in save_criteria_tags else ''
 
 
 def test_touch(request, id):
@@ -156,7 +162,6 @@ def get_charts_for_slices(request, id=1, slice_type=""):
                             "program_id": crit.program.id,
                             "is_in_compare": [main_criteria + "." + slice_type + "." + x, str(crit.program.id)] in request.session['to_compare'],
                             "description": description_translate(x),
-                            "danger_description": danger_suggest(x),
                             "data": {
                                 "labels": timestamps,
                                 "datasets": [
@@ -244,7 +249,6 @@ def get_charts(request, id=1):
                 "description": program.description,
                 "mainChart": {
                     "description": description_translate("Agg_data"),
-                    "danger_description": danger_suggest("Agg_data"),
                     "chart_label": "Agg_data",
                     "program_id": program.id,
                     "data": agg_criteries,
@@ -259,7 +263,6 @@ def get_charts(request, id=1):
                         "program_id": program.id,
                         "is_in_compare": [x, str(program.id)] in request.session['to_compare'],
                         "description": description_translate(x),
-                        "danger_description": danger_suggest(x),
                         "data": {
                             "labels": timestamps,
                             "datasets": [
@@ -346,9 +349,45 @@ def upload_data_university(request):
         return render(request, "upload_data_university.html", {"form": form})
     return redirect("/")
 
+SCOPES = ['https://www.googleapis.com/auth/drive']
 
-def about_us(request):
-    return render(request, "about_us.html")
+a = {"installed": {"client_id": "683494480132-mp8okjo08qbfcvh2l79u5n5mg2rnmqur.apps.googleusercontent.com", "project_id": "quickstart-1592658186030", "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                   "token_uri": "https://oauth2.googleapis.com/token", "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs", "client_secret": "Twq_KN77Y4x89Y5D4hc-lsK0", "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob", "http://localhost"]}}
+kek = io.BytesIO(str(a).encode())
+
+
+def get_google_data(request):
+    if request.method == "POST":
+        creds = None
+        if not creds or not creds.valid:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                "credentials.json", SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+
+        service = build('drive', 'v3', credentials=creds)
+
+        results = service.files().list(
+            pageSize=10, fields="nextPageToken, files(id, name, mimeType, parents, createdTime, permissions, quotaBytesUsed)").execute()
+        table = None
+        for key in results["files"]:
+            if key["name"] == request.POST["name"]:
+                print(key)
+                table = key["id"]
+                break
+        if table:
+            request = service.files().export_media(fileId=table,
+                                                   mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            downloader = MediaIoBaseDownload("file", request)
+            done = False
+            while done is False:
+
+                status, done = downloader.next_chunk()
+                print("Download %d%%." % int(status.progress() * 100))
+    else:
+        form = GoogleForm
+        return render(request, "get_google_data.html", {"form": form})
+    return redirect("/")
 
 urlpatterns = [
     path("program/<int:id>", get_charts, name="program"),
@@ -366,5 +405,5 @@ urlpatterns = [
          name="upload_data_teachers"),
     path("upload_data_students", upload_data_students,
          name="upload_data_students"),
-    path("about_us", about_us, name="about_us"),
+    path("get_google_data", get_google_data, name="get_google_data")
 ]
