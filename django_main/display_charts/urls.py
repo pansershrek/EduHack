@@ -11,7 +11,7 @@ from collections import defaultdict
 from .utils.parser_xlsd import parse_teachers_data, parse_university_data, parse_student_data
 import os
 from django.shortcuts import redirect
-from .utils.dict import translate_criteria, criteria2desc
+from .utils.dict import translate_criteria, criteria2desc, save_criteria_tags
 from .forms import UploadForm, GoogleForm
 import io
 
@@ -35,6 +35,10 @@ def label_translate(label):
 
 def description_translate(label):
     return criteria2desc[label] if label in criteria2desc else label
+
+
+def danger_suggest(label):
+    return save_criteria_tags[label] if label in save_criteria_tags else ''
 
 
 def test_touch(request, id):
