@@ -124,12 +124,12 @@ def delete_compare_charts(request):
 
 
 def calc_stat_for_chart(chart):
-    if len(chart['data']['datasets'][0]['data']) > 1:
-        if chart['data']['datasets'][0]['data'][-1] < chart['data']['datasets'][0]['data'][-2]:
-            chart['alert'] = True
-    chart['stat'] = {}
     arr = np.array(chart['data']['datasets'][0]['data'])
     arr = arr[arr != 0]
+    if len(arr) > 1:
+        if arr[-1] < arr[-2]:
+            chart['alert'] = True
+    chart['stat'] = {}
     chart['stat']['mean'] = arr.mean()
     chart['stat']['var'] = arr.var()
     chart['stat']['median'] = np.median(arr)
